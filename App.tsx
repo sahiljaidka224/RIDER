@@ -2,6 +2,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookNowScreen } from "./src/components/BookRide";
 import { EnterDestination } from "./src/components/SelectDestination";
+import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
@@ -19,6 +20,11 @@ const MainStackScreen = () => {
       <MainStack.Screen
         name="EntryScreen"
         component={EntryScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name="EnterPhoneNumber"
+        component={EnterPhoneNumber}
         options={{ headerShown: false }}
       />
       <MainStack.Screen

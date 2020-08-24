@@ -1,85 +1,93 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { NavigationProp } from "@react-navigation/native";
-import React from 'react';
-import styled from 'styled-components/native';
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import styled from "styled-components/native";
 
 interface EntryScreenProps {
-    navigation: NavigationProp<any, any>
+  navigation: NavigationProp<any, any>;
 }
 
-const BackgroundView = styled(View)`
+const BackgroundView = styled(SafeAreaView)`
   background-color: #ffffff;
   display: flex;
   flex: 1;
   align-items: center;
 `;
 
-const ImageWrapper = styled(View)`
+const Wrapper = styled(View)`
   width: 100%;
   height: 60%;
-  align-items: center;
-  border-bottom-left-radius: 50px;
-  border-bottom-right-radius: 50px;
+`;
+
+const WelcomeImage = styled(Image)`
+  flex: 1;
+  width: 100%;
 `;
 
 const WelcomeWrapper = styled(View)`
   width: 100%;
-  height: 10%;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  padding-left: 16px;
+  margin-left: 25px;
   margin-top: 10px;
-`;
-
-const NameWrapper = styled(Image)`
-`;
-
-const ImageView = styled(Image)`
-    flex: 1;
-    width: 80%;
+  position: absolute;
+  align-items: center;
 `;
 
 const WelcomeTo = styled(Text)`
   color: #0e1823;
   font-family: "SFPro-Regular";
-  margin-right: 10px;
-  font-size: 32px;
+  font-size: 22px;
+  margin-right: 6px;
 `;
 
-const HorizontalLine = styled(View)`
+const NameWrapper = styled(Image)`
+  height: 52px;
+  width: 68px;
+  margin-top: 5px;
+`;
+
+export const HorizontalLine = styled(View)`
   height: 1.5px;
   background-color: #eeeeee;
   width: 90%;
+  margin: 0 auto;
 `;
 
-const PhoneWrapper = styled(View)`
+export const PhoneWrapper = styled(View)`
   display: flex;
   flex-direction: row;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   margin-left: 40px;
   width: 100%;
-  margin-top: 5px;
+  margin-top: 80px;
   align-items: center;
 `;
 
-const CountryCode = styled(Text)`
+export const CountryCode = styled(Text)`
   font-family: "SFPro-Regular";
-  font-size: 26px;
+  font-size: 24px;
   color: #000000;
 `;
 
-const PhoneNumberClickable = styled(TouchableOpacity)`
-
+export const PhoneNumberClickable = styled(TouchableOpacity)`
+  flex: 1;
 `;
 
-const PhoneNumber = styled(Text)`
+export const PhoneNumber = styled(Text)`
   font-family: "SFPro-Regular";
-  font-size: 20px;
+  font-size: 18px;
   color: #000000;
-  opacity: 0.5;
-  margin-left: 10px;
+  opacity: 0.4;
+  margin-left: 6px;
 `;
 
 const SocialMediaWrapper = styled(View)`
@@ -93,38 +101,47 @@ const SocialMediaText = styled(Text)`
   font-family: "SFPro-Regular";
 `;
 
-export const EntryScreen: React.FC<EntryScreenProps> = ({navigation}) => {
-    const onPhoneNumberClick = () => {
-        navigation.navigate("");
-    }
-         return (
-           <BackgroundView>
-             <ImageWrapper>
-               <ImageView
-                 source={require("../../../assets/WelcomeScreen.png")}
-                 resizeMode="contain"
-               />
-             </ImageWrapper>
-             <WelcomeWrapper>
-               <WelcomeTo>Welcome to</WelcomeTo>
-               <NameWrapper
-                 source={require("../../../assets/RidoLogo.png")}
-                 resizeMode="contain"
-               />
-             </WelcomeWrapper>
-             <PhoneWrapper>
-               <CountryCode>+61</CountryCode>
-               <PhoneNumberClickable onPress={() => {}}>
-                 <PhoneNumber>123456789</PhoneNumber>
-               </PhoneNumberClickable>
-             </PhoneWrapper>
+export const FlagWrapper = styled(View)`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: black;
+  margin-right: 17px;
+`;
 
-             <HorizontalLine />
-             <SocialMediaWrapper>
-               <SocialMediaText>
-                 By signing up you agree to our privacy policy
-               </SocialMediaText>
-             </SocialMediaWrapper>
-           </BackgroundView>
-         );
-       };
+export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
+  const onPhoneNumberClick = () => {
+    navigation.navigate("EnterPhoneNumber");
+  };
+
+  return (
+    <BackgroundView>
+      <Wrapper>
+        <WelcomeWrapper>
+          {/* <WelcomeTo>Let's</WelcomeTo> */}
+          <NameWrapper
+            source={require("../../../assets/WelcomeScreenLogo.png")}
+          />
+        </WelcomeWrapper>
+        <WelcomeImage
+          source={require("../../../assets/WelcomeScreen.png")}
+          resizeMode="contain"
+        />
+      </Wrapper>
+      <PhoneWrapper>
+        <FlagWrapper />
+        <CountryCode>+61</CountryCode>
+        <PhoneNumberClickable onPress={onPhoneNumberClick}>
+          <PhoneNumber>474 430 303</PhoneNumber>
+        </PhoneNumberClickable>
+      </PhoneWrapper>
+      <HorizontalLine />
+      <SocialMediaWrapper>
+        <SocialMediaText>
+          By signing up you agree to our privacy policy
+        </SocialMediaText>
+      </SocialMediaWrapper>
+      <StatusBar style="auto" />
+    </BackgroundView>
+  );
+};
