@@ -10,7 +10,9 @@ import { BackButton } from "../Common/BackButton/index";
 import { NavigationProp } from "@react-navigation/native";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
+import { SIGNUP_USING_NUM } from "../EntryPoint/queriesAndMutations";
 import styled from "styled-components/native";
+import { useMutation } from "@apollo/react-hooks";
 
 interface EnterPhoneNumberProps {
   navigation: NavigationProp<any, any>;
@@ -22,7 +24,7 @@ const SafeAreaWrapper = styled(SafeAreaView)`
   display: flex;
 `;
 
-const EnterMobileNumberText = styled(Text)`
+export const EnterMobileNumberText = styled(Text)`
   font-size: 21px;
   color: #0e1823;
   font-family: "SFPro-Regular";
@@ -37,17 +39,17 @@ const PhoneNumberInput = styled(TextInput)`
   color: #000000;
 `;
 
-const NextButtonWrapper = styled(View)`
+export const NextButtonWrapper = styled(View)`
   align-items: center;
   width: 80%;
   justify-content: space-between;
-  margin-top: 50%;
+  margin-top: 30%;
   display: flex;
   flex-direction: row;
 `;
 
-const ByContinuingText = styled(Text)`
-  font-size: 14px;
+export const ByContinuingText = styled(Text)`
+  font-size: 16px;
   font-family: "SFPro-Regular";
   margin-right: 20px;
   margin-left: 25px;
@@ -57,6 +59,7 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
   navigation,
 }) => {
   const [value, onChangeText] = React.useState<string>("");
+  const [signUp, { loading, error, data }] = useMutation(SIGNUP_USING_NUM);
 
   const onBackButtonClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -80,6 +83,24 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
     onChangeText(text);
   };
 
+  const onNextButtonClick = () => {
+    if (value.replace(/ /g, "").length !== 9) return;
+
+    signUp({ variables: { mobNumber: value.replace(/ /g, "") } });
+
+    // TODO: Check for errors
+    // TODO: stop from entering . in phone number field
+
+    if (!loading) {
+      console.log({ loading, error, data });
+
+      if (!error && data)
+        navigation.navigate("OtpScreen", {
+          number: value,
+        });
+    }
+  };
+
   return (
     <SafeAreaWrapper>
       <BackButton onClick={onBackButtonClick} />
@@ -101,10 +122,13 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
       </PhoneWrapper>
       <HorizontalLine />
       <NextButtonWrapper>
-          <ByContinuingText>
-              By continuing you will receive a SMS for verification
-          </ByContinuingText>
-        <NextButton onClick={() => {}} />
+        <ByContinuingText>
+          By continuing you will receive a SMS for verification
+        </ByContinuingText>
+        <NextButton
+          onClick={onNextButtonClick}
+          isValid={value.replace(/ /g, "").length === 9}
+        />
       </NextButtonWrapper>
     </SafeAreaWrapper>
   );

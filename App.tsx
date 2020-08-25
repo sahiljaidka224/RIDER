@@ -1,10 +1,13 @@
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookNowScreen } from "./src/components/BookRide";
+import { BookingScreen } from "./src/components/BookScreen";
+import { EnableNotifications } from "./src/components/EnableNotification";
 import { EnterDestination } from "./src/components/SelectDestination";
 import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
 import { NavigationContainer } from "@react-navigation/native";
+import { OtpScreen } from "./src/components/Otp";
 import React from "react";
 import { SignUp } from "./src/components/Signup";
 import client from "./client";
@@ -24,7 +27,12 @@ const MainStackScreen = () => {
       />
       <MainStack.Screen
         name="EnterPhoneNumber"
-        component={EnterPhoneNumber}
+        component={BookingScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name="OtpScreen"
+        component={OtpScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
@@ -50,25 +58,24 @@ export default function App() {
     return <AppLoading />;
   }
   return (
-      <ApolloProvider client={client}>
-        <NavigationContainer>
-          <RootStack.Navigator mode="modal">
-            <RootStack.Screen
-              name="Main"
-              component={MainStackScreen}
-              options={{ headerShown: false }}
-            />
-            <RootStack.Screen
-              name="EnterDestination"
-              component={EnterDestination}
-              options={{
-                headerShown: false,
-                cardStyle: { backgroundColor: "transparent" },
-              }}
-            />
-          </RootStack.Navigator>
-        </NavigationContainer>
-      </ApolloProvider>
-    );
-  
+    <ApolloProvider client={client}>
+      <NavigationContainer>
+        <RootStack.Navigator mode="modal">
+          <RootStack.Screen
+            name="Main"
+            component={MainStackScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="EnterDestination"
+            component={EnterDestination}
+            options={{
+              headerShown: false,
+              cardStyle: { backgroundColor: "transparent" },
+            }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
+  );
 }

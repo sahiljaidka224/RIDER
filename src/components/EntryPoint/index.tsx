@@ -80,6 +80,8 @@ export const CountryCode = styled(Text)`
 
 export const PhoneNumberClickable = styled(TouchableOpacity)`
   flex: 1;
+  height: 40px;
+  justify-content: center;
 `;
 
 export const PhoneNumber = styled(Text)`
