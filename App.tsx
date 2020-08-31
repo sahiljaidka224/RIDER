@@ -4,6 +4,7 @@ import { BookNowScreen } from "./src/components/BookRide";
 import { BookingScreen } from "./src/components/BookScreen";
 import { EnableNotifications } from "./src/components/EnableNotification";
 import { EnterDestination } from "./src/components/SelectDestination";
+import { EnterDestinationScreen } from "./src/components/enter-destination";
 import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
 import { NavigationContainer } from "@react-navigation/native";
@@ -36,14 +37,9 @@ const MainStackScreen = () => {
         options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name="SignUp"
-        component={SignUp}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="BookNow"
-        component={BookNowScreen}
-        options={{ headerShown: false }}
+        name="BookingScreen"
+        component={BookingScreen}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
     </MainStack.Navigator>
   );
@@ -68,7 +64,7 @@ export default function App() {
           />
           <RootStack.Screen
             name="EnterDestination"
-            component={EnterDestination}
+            component={EnterDestinationScreen}
             options={{
               headerShown: false,
               cardStyle: { backgroundColor: "transparent" },

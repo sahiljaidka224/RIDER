@@ -1,4 +1,4 @@
-import { Animated, Easing, Image, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Animated, Easing, Image, TouchableOpacity } from "react-native";
 
 import { Color } from "../../../constants/Theme";
 import React from "react";
@@ -7,6 +7,7 @@ import styled from "styled-components/native";
 interface NextButtonProps {
   onClick: () => void;
   isValid: boolean;
+  loading?: boolean;
 }
 
 const NextButtonWrapper = styled(TouchableOpacity)`
@@ -23,7 +24,7 @@ const NextButtonImage = styled(Image)`
   height: 14px;
 `;
 
-export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid }) => {
+export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid, loading}) => {
   const [fadeAnim, updateFadeAnim] = React.useState(new Animated.Value(0));
   const [rotateAnim, updateRotateAnim] = React.useState(new Animated.Value(0));
 
@@ -65,7 +66,13 @@ export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid }) => {
           ],
         }}
       >
-        <NextButtonImage source={require("../../../../assets/ArrowLeft.png")} />
+        {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <NextButtonImage
+            source={require("../../../../assets/ArrowLeft.png")}
+          />
+        )}
       </Animated.View>
     </NextButtonWrapper>
   );

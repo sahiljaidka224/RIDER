@@ -24,22 +24,6 @@ export const EnterDestination: React.FC<EnterDestinationProps> = ({navigation, r
   
   const {latitude, longitude} = route.params;
 
-  console.log({ latitude, longitude });
-  const getAddressFromLatLong = () => {
-    fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY&language=en`
-    )
-      .then((response) => response.json())
-      .then((json) => {
-        console.log({ json });
-        return json;
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-  getAddressFromLatLong();
-
     return (
       <Wrapper>
         <GooglePlacesAutocomplete

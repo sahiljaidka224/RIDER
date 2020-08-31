@@ -19,15 +19,14 @@ interface TabletButtonProps {
 const Wrapper = styled(TouchableOpacity)<{ selected: boolean }>`
   display: flex;
   flex-direction: row;
-  width: 120px;
-  height: 50px;
+  max-width: 120px;
+  max-height: 50px;
   background-color: ${(props) =>
     props.selected ? Color.Button.Background : 'transparent'};
   align-items: center;
   justify-content: center;
   border-radius: 25px;
-  padding: 0 15px;
-  padding-top: 2px;
+  padding: 2px 15px;
   border: ${(props) =>
     props.selected ? '1px solid #000000' : 'none'};
 `;

@@ -1,11 +1,18 @@
-import { ByContinuingText, EnterMobileNumberText, NextButtonWrapper } from "../EnterPhoneNumber";
+import {
+  ByContinuingText,
+  EnterMobileNumberText,
+  NextButtonWrapper,
+} from "../EnterPhoneNumber";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { SafeAreaView, TextInput, View } from "react-native";
+import { Platform, SafeAreaView, Text, TextInput, View } from "react-native";
 
 import { BackButton } from "../Common/BackButton";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
+import { VERIFY_OTP } from "./queriesAndMutations";
+import { _ } from "lodash";
 import styled from "styled-components/native";
+import { useMutation } from "@apollo/react-hooks";
 
 interface ParamList {
   number: string;
@@ -55,72 +62,127 @@ const OtpTextInput = styled(TextInput)`
   padding-left: 35%;
 `;
 
+const Container = styled(View)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+`;
+
+const ContainerNumber = styled(View)`
+  flex: 1;
+`;
+
+const ContainerButton = styled(View)`
+  flex: 1;
+  align-items: flex-start;
+  padding: 10px;
+`;
+
+const Error = styled(Text)`
+  font-size: 14px;
+  font-family: "SFPro-Regular";
+  color: red;
+  margin: 0 auto;
+`;
+
 export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
-  const { number } = route.params;
+  const { number, id } = route.params;
 
   const [otp, updateOtp] = React.useState<string[]>([]);
-  const [refArray, updateRefArr] = React.useState<TextInput[] | null[]>([]);
+  const [editingIndex, updateEditingIndex] = React.useState<Number>(0);
   const [seconds, updateSeconds] = React.useState(35);
+
+  const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
+    onCompleted: (completedData) => {
+      navigation.navigate("BookingScreen");
+    },
+  });
 
   const onBackClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
   };
-  // TODO: stop from entering . in otp field
+  // TODO: remove timer from state
   // TODO: resend functionality
-  // TODO: back space otp
 
   React.useEffect(() => {
     if (!seconds) return;
 
-    const intervalId = setInterval(() => {
-      updateSeconds(seconds - 1);
-    }, 1000);
+    // const intervalId = setInterval(() => {
+    //   updateSeconds(seconds - 1);
+    // }, 1000);
 
-    return () => clearInterval(intervalId);
-
+    // return () => clearInterval(intervalId);
   }, [seconds]);
 
-  console.log({ seconds });
-  const onNextButtonClick = () => {}
+  const onNextButtonClick = () => {
+    if (otp.length < 4) return; // TODO: show error
+
+    const otpToVerify = otp.toString().replaceAll(",", "");
+    if (otpToVerify.length === 4) {
+      verifyOtp({
+        variables: { otp: otpToVerify, id: id },
+      });
+    }
+  };
+
+  console.log({ loading, error, data });
 
   return (
     <BackgroundView>
       <BackButton onClick={onBackClick} />
-      <EnterMobileNumberText>
-        {`Please enter the 4-digit code sent to you at +61 ${number}`}
-      </EnterMobileNumberText>
-      <OtpWrapper>
-        {[0, 1, 2, 3].map((_elem, index) => (
-          <InputWrapper>
-            <OtpTextInput
-              ref={(ref) => (refArray[index] = ref)}
-              key={index}
-              maxLength={1}
-              value={otp[index] ? otp[index] : ""}
-              autoFocus={otp.length === index}
-              keyboardType={"numeric"}
-              onChangeText={(text) => {
-                otp[index] = text;
-                updateOtp([...otp]);
-                if (index < 3 && text !== "") {
-                  if (refArray !== null && refArray[index + 1] !== null) {
-                    refArray[index + 1].focus();
+      <Container>
+        <ContainerNumber>
+          <EnterMobileNumberText>
+            {`Please enter the 4-digit code sent to you at +61 ${number}`}
+          </EnterMobileNumberText>
+          <OtpWrapper>
+            {[0, 1, 2, 3].map((_elem, index) => (
+              <InputWrapper key={`${index}-${Math.random()}`}>
+                <OtpTextInput
+                  key={`${index}-${Math.random()}`}
+                  maxLength={1}
+                  value={otp[index] ? otp[index] : ""}
+                  autoFocus={editingIndex === index}
+                  keyboardType={
+                    Platform.OS === "ios" ? "number-pad" : "numeric"
                   }
-                }
-              }}
+                  onChange={(event) => {
+                    const { text } = event.nativeEvent;
+                    otp[index] = text;
+                    updateOtp([...otp]);
+                    if (index < 3 && text !== "") {
+                      if (index < 3) {
+                        updateEditingIndex(index + 1);
+                      }
+                    }
+                  }}
+                  onKeyPress={({ nativeEvent }) => {
+                    if (nativeEvent.key === "Backspace") {
+                      if (index > 0 && otp[index] === "") {
+                        updateEditingIndex(index - 1);
+                      }
+                    }
+                  }}
+                />
+              </InputWrapper>
+            ))}
+          </OtpWrapper>
+          {!loading && !data && error && <Error>Please try again!</Error>}
+        </ContainerNumber>
+        <ContainerButton>
+          <NextButtonWrapper>
+            <ByContinuingText>
+              {`Resend code in 0:${seconds > 9 ? seconds : `0${seconds}`}`}
+            </ByContinuingText>
+            <NextButton
+              loading={loading}
+              onClick={!loading ? onNextButtonClick : () => {}}
+              isValid={otp.length === 4}
             />
-          </InputWrapper>
-        ))}
-      </OtpWrapper>
-      <NextButtonWrapper>
-        <ByContinuingText>
-          {`Resend code in 0:${seconds > 9 ? seconds : `0${seconds}`}`}
-        </ByContinuingText>
-        <NextButton
-          onClick={onNextButtonClick}
-          isValid={otp.length === 4}
-        />
-      </NextButtonWrapper>
+          </NextButtonWrapper>
+        </ContainerButton>
+      </Container>
     </BackgroundView>
   );
 };
