@@ -6,6 +6,7 @@ import styled from "styled-components/native";
 
 interface MenuButtonProps {
   onClick: () => void;
+  source?: string;
 }
 
 const BackgroundView = styled(TouchableOpacity)`
@@ -21,7 +22,10 @@ const ImageWrapper = styled(Image)`
   max-height: 30px;
 `;
 
-export const MenuButton: React.FC<MenuButtonProps> = ({ onClick }) => {
+export const MenuButton: React.FC<MenuButtonProps> = ({
+  onClick,
+  source = "",
+}) => {
   const onMenuButtonClick = () => {
     if (onClick) onClick();
   };

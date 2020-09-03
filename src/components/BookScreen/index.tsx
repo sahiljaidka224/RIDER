@@ -8,28 +8,26 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import { NavigationProp, useIsFocused } from "@react-navigation/native";
+import React, { useState } from "react";
 
 import { AddressData } from "../enter-destination";
+import Axios from "axios";
 import { Color } from "../../constants/Theme";
 import { GET_NEARBY_DRIVERS } from "./queriesAndMutations";
 import { MenuButton } from "../Common/MenuButton";
-import { NavigationProp } from "@react-navigation/native";
 import { Point } from "react-native-google-places-autocomplete";
-import React from "react";
 import { TabletButton } from "../Common/Tablet";
 import { getAddressFromLatLong } from "../../utils/address-based-on-latlng";
 import { greetingsBasedOnTime } from "../../utils/GreetingsBasedOnCurrentTime";
+import { map } from "lodash";
 import { mapStyle } from "../../constants/MapStyle";
 import styled from "styled-components/native";
 import { useLazyQuery } from "@apollo/react-hooks";
+import { useOvermind } from "../../../overmind";
 
 interface BookingScreenProps {
   navigation: NavigationProp<any, any>;
-}
-
-interface State {
-  source: AddressData | undefined;
-  destination: AddressData | undefined;
 }
 
 const BackgroundView = styled(SafeAreaView)`
@@ -93,10 +91,14 @@ const OptionsWrapper = styled(View)`
 `;
 
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
-  const [address, updateAddress] = React.useState<State>({
-    source: undefined,
-    destination: undefined,
-  });
+  const isFocused = useIsFocused(); // FIXME: find a better way of doing this
+
+  const { state, actions } = useOvermind();
+  const { source, destination } = state;
+
+  const [coords, updateCoords] = useState<
+    [{ latitude: number; longitude: number }]
+  >();
   const mapRef = React.useRef<MapView>(null);
 
   const [getDrivers, { loading, data, error }] = useLazyQuery(
@@ -112,7 +114,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
       if (status !== "granted") {
         console.log("Permission to access location was denied");
       }
-
       await Location.getCurrentPositionAsync({
         enableHighAccuracy: true,
       }).then((locationData) => {
@@ -131,13 +132,10 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
             locationData.coords.longitude
           );
 
-          console.log({ address });
           if (address && address.results && address.results.length > 0) {
             const results = address.results[0];
 
             if (!results) return;
-
-            console.log({ results });
 
             let result = results.formatted_address;
             let readableAddress = "";
@@ -154,41 +152,67 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               }
             }
 
-            updateAddress({
-              destination: address?.destination,
-              source: {
-                readable: readableAddress,
-                location: location,
-              },
-            });
+            actions.updateSource({ readable: readableAddress, location });
           }
         }
-        getAddress();
+
+        if (!source) getAddress();
       });
     })();
-  }, []);
 
-  const updateSourceAddress = (data: AddressData) => {
-    console.log("here");
-    updateAddress({ destination: address?.destination, source: data });
-  };
+    async function showPolyline() {
+      const directions = await Axios.get(
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${source?.location.lat},${source?.location.lng}&destination=${destination.location.lat},${destination?.location.lng}&mode=driving&key=AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY`
+      );
 
-  const updateDestinationAddress = (data: AddressData) => {
-    console.log("here");
+      if (!directions || !directions.data) return;
 
-    updateAddress({ source: address?.source, destination: data });
-  };
+      const directionsData = directions.data;
+
+      if (!directionsData.routes || directionsData.routes.length === 0) return;
+
+      const routes = directionsData.routes[0];
+
+      console.log({directionsData})
+
+      if (!routes.legs) return;
+
+      const legs = routes.legs;
+
+      if (legs.length === 0 || !legs[0].steps) return;
+
+      const coordinates = [];
+
+      const startLoc = legs[0].start_location;
+
+      if(startLoc) {
+          coordinates.push({ longitude: startLoc.lng, latitude: startLoc.lat });
+      }
+
+      const steps = legs[0].steps;
+
+      if (steps.length > 0) {
+        map(steps, (step) => {
+            const endLoc= step.end_location;
+            coordinates.push({ longitude: endLoc.lng, latitude: endLoc.lat });
+        });
+      }
+
+      updateCoords(coordinates);
+
+
+
+    }
+
+    if (source && destination) showPolyline();
+  }, [source, destination]);
 
   const moveToEnterDestinationScreen = () => {
-    navigation.navigate("EnterDestination", {
-      address: address,
-      updateSourceAddress: (data: AddressData) => updateSourceAddress(data),
-      updateDestinationAddress: (data: AddressData) =>
-        updateDestinationAddress(data),
-    });
+    navigation.navigate("EnterDestination");
   };
 
-  const { source, destination } = address;
+  console.log({coords})
+
   return (
     <BackgroundView>
       <Map
@@ -220,29 +244,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         <Polyline
           strokeWidth={4}
           strokeColor="#2ECB70"
-          coordinates={[
-            { longitude: 145.0950765, latitude: -37.8535385 },
-            {
-              longitude: 145.0951108,
-              latitude: -37.8533495,
-            },
-            {
-              longitude: 145.1189277,
-              latitude: -37.8560828,
-            },
-            {
-              longitude: 145.1256179,
-              latitude: -37.8568823,
-            },
-            {
-              longitude: 145.1246127,
-              latitude: -37.8624482,
-            },
-            {
-              longitude: 145.12231,
-              latitude: -37.8621641,
-            },
-          ]}
+          coordinates={coords ? coords : []}
         />
       </Map>
       <MenuButtonWrapper>

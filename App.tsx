@@ -9,11 +9,18 @@ import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
 import { NavigationContainer } from "@react-navigation/native";
 import { OtpScreen } from "./src/components/Otp";
+import { Provider } from "overmind-react";
 import React from "react";
 import { SignUp } from "./src/components/Signup";
 import client from "./client";
+import { config } from "./overmind";
+import { createOvermind } from "overmind";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useFonts } from "@use-expo/font";
+
+const overmind = createOvermind(config, {
+  devtools: "192.168.0.46:3031",
+});
 
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
@@ -55,23 +62,25 @@ export default function App() {
   }
   return (
     <ApolloProvider client={client}>
-      <NavigationContainer>
-        <RootStack.Navigator mode="modal">
-          <RootStack.Screen
-            name="Main"
-            component={MainStackScreen}
-            options={{ headerShown: false }}
-          />
-          <RootStack.Screen
-            name="EnterDestination"
-            component={EnterDestinationScreen}
-            options={{
-              headerShown: false,
-              cardStyle: { backgroundColor: "transparent" },
-            }}
-          />
-        </RootStack.Navigator>
-      </NavigationContainer>
+      <Provider value={overmind}>
+        <NavigationContainer>
+          <RootStack.Navigator mode="modal">
+            <RootStack.Screen
+              name="Main"
+              component={MainStackScreen}
+              options={{ headerShown: false }}
+            />
+            <RootStack.Screen
+              name="EnterDestination"
+              component={EnterDestinationScreen}
+              options={{
+                headerShown: false,
+                cardStyle: { backgroundColor: "transparent" },
+              }}
+            />
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </Provider>
     </ApolloProvider>
   );
 }

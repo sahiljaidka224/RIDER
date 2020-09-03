@@ -66,7 +66,8 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
         language: "en",
         rankby: "distance",
         radius: 50,
-        location: '2',
+        location: "2",
+        components: "country:au"
       }}
       nearbyPlacesAPI="GooglePlacesSearch"
       textInputProps={{
@@ -77,6 +78,14 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
       enablePoweredByContainer={false}
       styles={styles}
       autoFocus={autoFocus}
+      GooglePlacesSearchQuery={{
+        rankby: "distance",
+        
+      }}
+      filterReverseGeocodingByTypes={[
+        "locality",
+        "administrative_area_level_1",
+      ]}
     />
   );
 };
@@ -112,5 +121,12 @@ const styles = StyleSheet.create({
     marginTop: "35%",
     left: 0,
     top: 0,
+    backgroundColor: 'red',
+    zIndex: 20000,
+    elevation: 10,
+    overflow: "visible"
   },
+  row: {
+      zIndex: 120
+  }
 });

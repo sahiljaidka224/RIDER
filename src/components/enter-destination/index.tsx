@@ -10,6 +10,7 @@ import React from "react";
 import { RideView } from "../ride-type";
 import styled from "styled-components/native";
 import { useLazyQuery } from "@apollo/react-hooks";
+import { useOvermind } from "../../../overmind";
 
 interface EnterDestinationProps {
   navigation: NavigationProp<any, any>;
@@ -72,11 +73,8 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
   navigation,
   route,
 }) => {
-  const {
-    address,
-    updateDestinationAddress,
-    updateSourceAddress,
-  } = route.params;
+  const { state, actions } = useOvermind();
+  const { source, destination } = state;
 
   const [rotateAnim, updateRotateAnim] = React.useState(new Animated.Value(0));
   const [getTripPrice, { loading, error, data }] = useLazyQuery(
@@ -89,37 +87,27 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
   );
 
   React.useEffect(() => {
-    // if (currentAddress.length > 0) return;
-    // async function getAddress() {
-    //   const address = await getAddressFromLatLong(latitude, longitude);
-    //   console.log({ address });
-    //   updateFromAddress(address.results[0].formatted_address.split(",")[0]);
-    // }
-    // getAddress();
-  }, []);
-
-  console.log({ loading, error, data });
+    if (source && destination) {
+      getTripPriceFromDb();
+    }
+  }, [source, destination]);
 
   const onBackButton = () => {
     if (navigation.canGoBack()) navigation.goBack();
   };
 
-  const { source, destination } = address;
-
   const updateSourceAdd = (data: AddressData) => {
-    if (updateSourceAddress) updateSourceAddress(data);
+    actions.updateSource(data);
 
-    getTripPriceFromDb();
+    if (destination) onBackButton();
   };
 
   const updateDestinationAdd = (data: AddressData) => {
-    if (updateDestinationAddress) updateDestinationAddress(data);
-
-    getTripPriceFromDb();
+    actions.updateDestination(data);
+    onBackButton()
   };
 
   const getTripPriceFromDb = () => {
-    console.log({ source, destination });
     if (!source || !destination) return console.log("No source or dest");
 
     if (!source.location || !source.location.lat || !source.location.lng)
@@ -185,13 +173,13 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
               destination && destination.readable ? destination.readable : ""
             }
             placeholder="Where to?"
-            autoFocus={true}
+            autoFocus={!updateDestinationAdd}
             updateAddress={updateDestinationAdd}
           />
         </TextViewWrapper>
       </DestinationViewWrapper>
       {loading && <ActivityIndicator size="small" />}
-      {data && <RideView />}
+      {/* {data && <RideView />} */}
     </Wrapper>
   );
 };
