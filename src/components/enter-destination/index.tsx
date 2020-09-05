@@ -56,7 +56,7 @@ const VerticalLine = styled(View)`
   height: 50px;
 `;
 
-const CircleView = styled(View)<{ widthHeight: Number }>`
+const CircleView = styled(View)<{ widthHeight: number }>`
   width: ${(props) => (props.widthHeight ? `${props.widthHeight}px` : "10px")};
   height: ${(props) => (props.widthHeight ? `${props.widthHeight}px` : "10px")};
   border-radius: ${(props) =>
@@ -88,7 +88,7 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
 
   React.useEffect(() => {
     if (source && destination) {
-      getTripPriceFromDb();
+    //   getTripPriceFromDb();
     }
   }, [source, destination]);
 
@@ -166,6 +166,7 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
             address={source && source.readable ? source.readable : ""}
             placeholder="Current Location"
             updateAddress={updateSourceAdd}
+            margin
           />
           <AddressAutocomplete
             key="2"

@@ -13,15 +13,19 @@ import React, { useState } from "react";
 
 import { AddressData } from "../enter-destination";
 import Axios from "axios";
+import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
 import { GET_NEARBY_DRIVERS } from "./queriesAndMutations";
+import { GET_TRIPPRICE_BASEDON_LOCATION } from "../enter-destination/queriesAndMutations";
+import { Icons } from "../../constants/icons";
 import { MenuButton } from "../Common/MenuButton";
 import { Point } from "react-native-google-places-autocomplete";
+import { RideView } from "../ride-type";
 import { TabletButton } from "../Common/Tablet";
 import { getAddressFromLatLong } from "../../utils/address-based-on-latlng";
 import { greetingsBasedOnTime } from "../../utils/GreetingsBasedOnCurrentTime";
-import { map } from "lodash";
 import { mapStyle } from "../../constants/MapStyle";
+import polyline from "@mapbox/polyline";
 import styled from "styled-components/native";
 import { useLazyQuery } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
@@ -50,13 +54,14 @@ const Map = styled(MapView)`
 const WhereToWrapper = styled(View)`
   position: absolute;
   bottom: 0;
-  width: 100%;
-  min-height: 35%;
+  min-width: 90%;
   height: auto;
-  background-color: #f9f9f9;
+  background-color: #ececec;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
   display: flex;
+  left: 10px;
+  right: 10px;
 `;
 
 const GreetingsText = styled(Text)`
@@ -90,6 +95,13 @@ const OptionsWrapper = styled(View)`
   margin-bottom: 10px;
 `;
 
+const MarkerDot = styled(View)`
+  background-color: #2ecb70;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+`;
+
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const isFocused = useIsFocused(); // FIXME: find a better way of doing this
 
@@ -107,6 +119,15 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
       pollInterval: 40000,
     }
   );
+
+  const [
+    getTripPrice,
+    { loading: tripPriceLoading, error: tripPriceErr, data: tripPriceData },
+  ] = useLazyQuery(GET_TRIPPRICE_BASEDON_LOCATION, {
+    onCompleted: (completedData) => {
+      console.log({ completedData });
+    },
+  });
 
   React.useEffect(() => {
     (async () => {
@@ -162,7 +183,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
 
     async function showPolyline() {
       const directions = await Axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${source?.location.lat},${source?.location.lng}&destination=${destination.location.lat},${destination?.location.lng}&mode=driving&key=AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY`
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${source?.location.lat},${source?.location.lng}&destination=${destination?.location.lat},${destination?.location.lng}&mode=driving&key=AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY`
       );
 
       if (!directions || !directions.data) return;
@@ -173,35 +194,28 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
 
       const routes = directionsData.routes[0];
 
-      console.log({directionsData})
-
-      if (!routes.legs) return;
-
-      const legs = routes.legs;
-
-      if (legs.length === 0 || !legs[0].steps) return;
-
-      const coordinates = [];
-
-      const startLoc = legs[0].start_location;
-
-      if(startLoc) {
-          coordinates.push({ longitude: startLoc.lng, latitude: startLoc.lat });
-      }
-
-      const steps = legs[0].steps;
-
-      if (steps.length > 0) {
-        map(steps, (step) => {
-            const endLoc= step.end_location;
-            coordinates.push({ longitude: endLoc.lng, latitude: endLoc.lat });
-        });
-      }
+      const points = polyline.decode(routes.overview_polyline.points);
+      const coordinates = points.map((point) => {
+        return {
+          latitude: point[0],
+          longitude: point[1],
+        };
+      });
 
       updateCoords(coordinates);
 
-
-
+      if (mapRef && coordinates && coordinates.length > 1) {
+        mapRef.current?.fitToCoordinates(coordinates, {
+          edgePadding: {
+            top: 20,
+            right: 20,
+            bottom: 250,
+            left: 20,
+          },
+          animated: true,
+        });
+      }
+      getTripPriceFromDb();
     }
 
     if (source && destination) showPolyline();
@@ -211,21 +225,51 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     navigation.navigate("EnterDestination");
   };
 
-  console.log({coords})
+  const getTripPriceFromDb = () => {
+    if (!source || !destination) return console.log("No source or dest");
+
+    if (!source.location || !source.location.lat || !source.location.lng)
+      return console.log("No source data");
+
+    if (
+      !destination.location ||
+      !destination.location.lat ||
+      !destination.location.lng
+    )
+      return console.log("No dest data");
+    //TODO: show error;
+    console.log("here");
+    getTripPrice({
+      variables: {
+        sourceLat: source.location.lat,
+        sourceLng: source.location.lng,
+        destinationLat: destination.location.lat,
+        destinationLng: destination.location.lng,
+      },
+    });
+  };
+
+  console.log({ coords });
+
+  const onCancel = () => {
+    updateCoords(undefined);
+    actions.updateDestination(undefined);
+  };
 
   return (
     <BackgroundView>
       <Map
         provider={PROVIDER_GOOGLE}
         customMapStyle={mapStyle}
-        showsUserLocation
+        showsUserLocation={true}
         ref={mapRef}
-        region={{
-          latitude: source?.location.lat ?? 0,
-          longitude: source?.location.lng ?? 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        zoomEnabled={true}
+        // region={{
+        //   latitude: source?.location.lat ?? 0,
+        //   longitude: source?.location.lng ?? 0,
+        //   latitudeDelta: 0.0922,
+        //   longitudeDelta: 0.0421,
+        // }}
       >
         {data &&
           data.findNearByDrivers &&
@@ -240,49 +284,91 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               rotation={-37}
             />
           ))}
-
-        <Polyline
-          strokeWidth={4}
-          strokeColor="#2ECB70"
-          coordinates={coords ? coords : []}
-        />
+        {coords &&
+          coords.length > 1 &&
+          coords.map((coord, index) => {
+            if (index === 0 || index === coords.length - 1) {
+              return (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: coord.latitude ?? 0,
+                    longitude: coord?.longitude ?? 0,
+                  }}
+                >
+                  <MarkerDot />
+                </Marker>
+              );
+            }
+          })}
+        {coords && coords.length > 1 && (
+          <Polyline
+            strokeWidth={4}
+            strokeColor="#2ECB70"
+            coordinates={coords ? coords : []}
+          />
+        )}
       </Map>
       <MenuButtonWrapper>
-        <MenuButton onClick={() => {}} />
+        {coords ? (
+          <MenuButton onClick={onCancel} source={Icons.cross} />
+        ) : (
+          <MenuButton
+            onClick={() => navigation.openDrawer()}
+            source={Icons.drawer}
+          />
+        )}
       </MenuButtonWrapper>
       <WhereToWrapper>
-        <GreetingsText>{greetingsBasedOnTime()}</GreetingsText>
-        <WhereToTextWrapper
-          onPress={moveToEnterDestinationScreen}
-          style={{
-            shadowColor: `${Color.Shadow.Color}`,
-            shadowOpacity: 0.05,
-            shadowOffset: {
-              width: 0,
-              height: 0,
-            },
-            shadowRadius: 4,
-          }}
-        >
-          <GreetingsText>Where to?</GreetingsText>
-          {source && source.readable && source.readable.length > 0 && (
-            <GreetingsText>{source.readable}</GreetingsText>
-          )}
-        </WhereToTextWrapper>
-        <OptionsWrapper>
-          <TabletButton
-            optionText="Trips"
-            onClick={() => {}}
-            selected={true}
-            imageSource={require("../../../assets/SelectedOptionTrips.png")}
-          />
-          <TabletButton
-            optionText="Eats"
-            onClick={() => {}}
-            selected={false}
-            imageSource={require("../../../assets/UnselectedOptionEats.png")}
-          />
-        </OptionsWrapper>
+        {coords &&
+          tripPriceData &&
+          tripPriceData.getTripPriceBasedOnLatLng &&
+          tripPriceData.getTripPriceBasedOnLatLng.fare &&
+          tripPriceData.getTripPriceBasedOnLatLng.fare.map((fr, index: number) => (
+            <RideView
+              key={index}
+              heading={fr.type}
+              description="Affordable rides, all to yourself"
+              fare={fr.price}
+            />
+          ))}
+
+        {!tripPriceData && !coords && (
+          <>
+            <GreetingsText>{greetingsBasedOnTime()}</GreetingsText>
+            <WhereToTextWrapper
+              onPress={moveToEnterDestinationScreen}
+              style={{
+                shadowColor: `${Color.Shadow.Color}`,
+                shadowOpacity: 0.05,
+                shadowOffset: {
+                  width: 0,
+                  height: 0,
+                },
+                shadowRadius: 4,
+              }}
+            >
+              <GreetingsText>Where to?</GreetingsText>
+              {source && source.readable && source.readable.length > 0 && (
+                <GreetingsText>{source.readable}</GreetingsText>
+              )}
+            </WhereToTextWrapper>
+            <OptionsWrapper>
+              <TabletButton
+                optionText="Trips"
+                onClick={() => {}}
+                selected={true}
+                imageSource={require("../../../assets/SelectedOptionTrips.png")}
+              />
+              <TabletButton
+                optionText="Eats"
+                onClick={() => {}}
+                selected={false}
+                imageSource={require("../../../assets/UnselectedOptionEats.png")}
+              />
+            </OptionsWrapper>
+          </>
+        )}
       </WhereToWrapper>
     </BackgroundView>
   );

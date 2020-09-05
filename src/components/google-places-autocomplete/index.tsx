@@ -1,8 +1,4 @@
 import {
-  GooglePlacesAutocomplete,
-  Point,
-} from "react-native-google-places-autocomplete";
-import {
   NativeSyntheticEvent,
   StyleSheet,
   TextInputChangeEventData,
@@ -10,6 +6,7 @@ import {
 } from "react-native";
 
 import { AddressData } from "../enter-destination";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import React from "react";
 
 interface AutoCompleteProps {
@@ -17,6 +14,7 @@ interface AutoCompleteProps {
   placeholder?: string;
   autoFocus?: boolean;
   updateAddress?: (data: AddressData) => void;
+  margin?: boolean
 }
 
 export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
@@ -24,6 +22,7 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
   placeholder,
   autoFocus,
   updateAddress,
+  margin
 }) => {
   const [selectedAddress, updateSelectedAddress] = React.useState(address);
 
@@ -42,6 +41,8 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
       updateSelectedAddress(address);
     }
   };
+
+  console.log({autoFocus})
   return (
     <GooglePlacesAutocomplete
       placeholder={placeholder}
@@ -67,8 +68,10 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
         rankby: "distance",
         radius: 50,
         location: "2",
-        components: "country:au"
+        components: "country:au",
       }}
+      scrollEnabled={true}
+      listViewDisplayed={true}
       nearbyPlacesAPI="GooglePlacesSearch"
       textInputProps={{
         onChange: onChange,
@@ -76,11 +79,20 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
         onEndEditing: onEndEditing,
       }}
       enablePoweredByContainer={false}
-      styles={styles}
+      styles={{
+        ...styles,
+        listView: {
+          width: "100%",
+          minHeight: "50%",
+          position: "absolute",
+          left: 0,
+          top: margin ? 130 : 50,
+          elevation: 10,
+        },
+      }}
       autoFocus={autoFocus}
       GooglePlacesSearchQuery={{
         rankby: "distance",
-        
       }}
       filterReverseGeocodingByTypes={[
         "locality",
@@ -95,9 +107,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0)",
     borderTopWidth: 0,
     borderBottomWidth: 0,
-    marginTop: 6,
+    marginTop: 0,
   },
-  description: {},
   textInput: {
     borderStyle: "solid",
     borderColor: "rgba(135,135,135, 0.3)",
@@ -114,19 +125,4 @@ const styles = StyleSheet.create({
   predefinedPlacesDescription: {
     color: "#1faadb",
   },
-  listView: {
-    width: "100%",
-    minHeight: "50%",
-    position: "absolute",
-    marginTop: "35%",
-    left: 0,
-    top: 0,
-    backgroundColor: 'red',
-    zIndex: 20000,
-    elevation: 10,
-    overflow: "visible"
-  },
-  row: {
-      zIndex: 120
-  }
 });

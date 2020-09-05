@@ -2,6 +2,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookNowScreen } from "./src/components/BookRide";
 import { BookingScreen } from "./src/components/BookScreen";
+import { DrawerComp } from "./src/components/drawer";
 import { EnableNotifications } from "./src/components/EnableNotification";
 import { EnterDestination } from "./src/components/SelectDestination";
 import { EnterDestinationScreen } from "./src/components/enter-destination";
@@ -14,6 +15,7 @@ import React from "react";
 import { SignUp } from "./src/components/Signup";
 import client from "./client";
 import { config } from "./overmind";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createOvermind } from "overmind";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useFonts } from "@use-expo/font";
@@ -25,6 +27,8 @@ const overmind = createOvermind(config, {
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
 
+const Drawer = createDrawerNavigator();
+
 const MainStackScreen = () => {
   return (
     <MainStack.Navigator>
@@ -35,7 +39,7 @@ const MainStackScreen = () => {
       />
       <MainStack.Screen
         name="EnterPhoneNumber"
-        component={BookingScreen}
+        component={AuthedViews}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
@@ -51,6 +55,18 @@ const MainStackScreen = () => {
     </MainStack.Navigator>
   );
 };
+
+const AuthedViews = () => {
+    return (
+      <Drawer.Navigator
+        initialRouteName="BookingScreen"
+        drawerContent={DrawerComp}
+      >
+        <Drawer.Screen name="BookingScreen" component={BookingScreen} />
+        <Drawer.Screen name="EnterPhoneNumber" component={EnterPhoneNumber} />
+      </Drawer.Navigator>
+    );
+}
 
 export default function App() {
   const [isLoaded] = useFonts({

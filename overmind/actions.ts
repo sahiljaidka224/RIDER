@@ -13,6 +13,6 @@ export const updateSource: Action<AddressData> = ({ state }, address) => {
   state.source = address;
 };
 
-export const updateDestination: Action<AddressData> = ({ state }, address) => {
+export const updateDestination: Action<AddressData | undefined> = ({ state }, address) => {
   state.destination = address;
 };

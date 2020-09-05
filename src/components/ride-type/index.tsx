@@ -1,13 +1,13 @@
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 import React from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import styled from "styled-components/native";
 
 interface RideTypeProps {
-  heading: String;
-  fare: String;
-  description?: String;
+  heading: string;
+  fare: string;
+  description?: string;
 }
 
 const BackgroundView = styled(TouchableOpacity)`
@@ -19,7 +19,7 @@ const BackgroundView = styled(TouchableOpacity)`
   padding: 20px;
 `;
 
-const CarWrapper = styled(View)`
+const CarWrapper = styled.Image`
   height: 85px;
   width: 90px;
   border-radius: 20px;
@@ -48,15 +48,23 @@ const Fare = styled(Text)`
   font-family: "SFPro-Regular";
 `;
 
-export const RideView = () => {
+export const RideView: React.FC<RideTypeProps> = ({
+  fare,
+  heading,
+  description,
+}) => {
   return (
     <BackgroundView>
-      <CarWrapper />
+      <CarWrapper
+        source={require("../../../assets/Car.png")}
+        resizeMode="contain"
+      />
+        
       <TextWrapper>
-        <HeadingText>1</HeadingText>
-        <DescText>2</DescText>
+        <HeadingText>{heading}</HeadingText>
+        <DescText>{description}</DescText>
       </TextWrapper>
-      <Fare>2222222</Fare>
+      <Fare>{fare}</Fare>
     </BackgroundView>
   );
 };

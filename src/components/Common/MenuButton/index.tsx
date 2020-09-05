@@ -1,6 +1,7 @@
 import { Image, TouchableOpacity } from "react-native";
 
 import { Color } from "../../../constants/Theme";
+import { Icons } from "../../../constants/icons";
 import React from "react";
 import styled from "styled-components/native";
 
@@ -43,7 +44,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
       }}
     >
       <ImageWrapper
-        source={require("../../../../assets/MenuIcon.png")}
+        source={source ? source : Icons.drawer}
         resizeMode="center"
       />
     </BackgroundView>
