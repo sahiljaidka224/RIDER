@@ -40,7 +40,7 @@ const BackButtonWrapper = styled(Animated.View)`
 
 const DestinationViewWrapper = styled(View)`
   width: 100%;
-  height: 15%;
+  height: 17%;
   display: flex;
   flex-direction: row;
 `;
@@ -53,7 +53,7 @@ const DesignWrapper = styled(View)`
 
 const VerticalLine = styled(View)`
   border: 0.5px dashed black;
-  height: 50px;
+  height: 48px;
 `;
 
 const CircleView = styled(View)<{ widthHeight: number }>`
@@ -64,7 +64,7 @@ const CircleView = styled(View)<{ widthHeight: number }>`
   background-color: black;
 `;
 
-const TextViewWrapper = styled(View)`
+const TextViewWrapper = styled.View`
   flex: 5;
   justify-content: center;
 `;
@@ -88,7 +88,7 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
 
   React.useEffect(() => {
     if (source && destination) {
-    //   getTripPriceFromDb();
+      //   getTripPriceFromDb();
     }
   }, [source, destination]);
 
@@ -104,7 +104,7 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
 
   const updateDestinationAdd = (data: AddressData) => {
     actions.updateDestination(data);
-    onBackButton()
+    onBackButton();
   };
 
   const getTripPriceFromDb = () => {
@@ -156,9 +156,9 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
       </BackButtonWrapper>
       <DestinationViewWrapper>
         <DesignWrapper>
-          <CircleView widthHeight={20} />
+          <CircleView widthHeight={18} />
           <VerticalLine />
-          <CircleView widthHeight={13} />
+          <CircleView widthHeight={10} />
         </DesignWrapper>
         <TextViewWrapper>
           <AddressAutocomplete
@@ -174,7 +174,7 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
               destination && destination.readable ? destination.readable : ""
             }
             placeholder="Where to?"
-            autoFocus={!updateDestinationAdd}
+            autoFocus={!destination}
             updateAddress={updateDestinationAdd}
           />
         </TextViewWrapper>

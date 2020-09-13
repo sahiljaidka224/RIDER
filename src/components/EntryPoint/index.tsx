@@ -6,6 +6,7 @@ import {
   View,
 } from "react-native";
 
+import { Loader } from "../Common/loader";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import { StatusBar } from "expo-status-bar";

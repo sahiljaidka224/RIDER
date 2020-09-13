@@ -1,11 +1,47 @@
-import { ApolloClient } from "apollo-client";
+// import { ApolloClient, HttpLink, split } from "@apollo/client";
+
+// import { InMemoryCache } from "apollo-cache-inmemory";
+// import { WebSocketLink } from "@apollo/client/link/ws";
+// // import { WebSocketLink } from "apollo-link-ws";
+// import { getMainDefinition } from "@apollo/client/utilities";
+
+import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
+// Setup the network "links"
+import { WebSocketLink } from "apollo-link-ws";
+import { getMainDefinition } from "apollo-utilities";
+// import { getMainDefinition } from "@apollo/client/utilities";
+import { split } from "apollo-link";
 
-const link = new HttpLink({
-//   uri: "http://192.168.0.45:4000/graphql/",
-    uri: "http://172.20.10.4:4000/graphql/",
+const httpLink = new HttpLink({
+  uri: "http://192.168.0.45:4000/graphql",
+  //   uri: "http://172.20.10.4:4000/graphql/",
 });
+
+const wsLink = new WebSocketLink({
+  uri: `ws://192.168.0.45:4000/graphql`,
+  options: {
+    reconnect: true,
+    lazy: true,
+  },
+  //   connectionParams: {
+  //     authToken: user.authToken,
+  //   },
+});
+
+const link = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
 const cache = new InMemoryCache();
 const client = new ApolloClient({
   link,

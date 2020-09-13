@@ -1,10 +1,8 @@
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
-import { BookNowScreen } from "./src/components/BookRide";
 import { BookingScreen } from "./src/components/BookScreen";
 import { DrawerComp } from "./src/components/drawer";
 import { EnableNotifications } from "./src/components/EnableNotification";
-import { EnterDestination } from "./src/components/SelectDestination";
 import { EnterDestinationScreen } from "./src/components/enter-destination";
 import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
@@ -12,7 +10,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { OtpScreen } from "./src/components/Otp";
 import { Provider } from "overmind-react";
 import React from "react";
-import { SignUp } from "./src/components/Signup";
 import client from "./client";
 import { config } from "./overmind";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -39,6 +36,7 @@ const MainStackScreen = () => {
       />
       <MainStack.Screen
         name="EnterPhoneNumber"
+        // component={EnterPhoneNumber}
         component={AuthedViews}
         options={{ headerShown: false }}
       />
@@ -49,7 +47,7 @@ const MainStackScreen = () => {
       />
       <MainStack.Screen
         name="BookingScreen"
-        component={BookingScreen}
+        component={AuthedViews}
         options={{ headerShown: false, gestureEnabled: false }}
       />
     </MainStack.Navigator>
@@ -57,16 +55,16 @@ const MainStackScreen = () => {
 };
 
 const AuthedViews = () => {
-    return (
-      <Drawer.Navigator
-        initialRouteName="BookingScreen"
-        drawerContent={DrawerComp}
-      >
-        <Drawer.Screen name="BookingScreen" component={BookingScreen} />
-        <Drawer.Screen name="EnterPhoneNumber" component={EnterPhoneNumber} />
-      </Drawer.Navigator>
-    );
-}
+  return (
+    <Drawer.Navigator
+      initialRouteName="BookingScreen"
+      drawerContent={DrawerComp}
+    >
+      <Drawer.Screen name="BookingScreen" component={BookingScreen} />
+      <Drawer.Screen name="EnterPhoneNumber" component={EnterPhoneNumber} />
+    </Drawer.Navigator>
+  );
+};
 
 export default function App() {
   const [isLoaded] = useFonts({

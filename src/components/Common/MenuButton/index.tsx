@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Image, TouchableOpacity } from "react-native";
 
 import { Color } from "../../../constants/Theme";
 import { Icons } from "../../../constants/icons";
@@ -8,6 +8,7 @@ import styled from "styled-components/native";
 interface MenuButtonProps {
   onClick: () => void;
   source?: string;
+  isLoading?: boolean;
 }
 
 const BackgroundView = styled(TouchableOpacity)`
@@ -26,6 +27,7 @@ const ImageWrapper = styled(Image)`
 export const MenuButton: React.FC<MenuButtonProps> = ({
   onClick,
   source = "",
+  isLoading = false,
 }) => {
   const onMenuButtonClick = () => {
     if (onClick) onClick();
@@ -40,13 +42,17 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
           width: 0,
           height: 3,
         },
-        shadowRadius: 5,
+        shadowRadius: 4,
       }}
     >
-      <ImageWrapper
-        source={source ? source : Icons.drawer}
-        resizeMode="center"
-      />
+      {isLoading ? (
+        <ActivityIndicator size="small" />
+      ) : (
+        <ImageWrapper
+          source={source ? source : Icons.drawer}
+          resizeMode="center"
+        />
+      )}
     </BackgroundView>
   );
 };

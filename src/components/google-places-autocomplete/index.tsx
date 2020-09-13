@@ -14,7 +14,7 @@ interface AutoCompleteProps {
   placeholder?: string;
   autoFocus?: boolean;
   updateAddress?: (data: AddressData) => void;
-  margin?: boolean
+  margin?: boolean;
 }
 
 export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
@@ -22,7 +22,7 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
   placeholder,
   autoFocus,
   updateAddress,
-  margin
+  margin,
 }) => {
   const [selectedAddress, updateSelectedAddress] = React.useState(address);
 
@@ -42,7 +42,6 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
     }
   };
 
-  console.log({autoFocus})
   return (
     <GooglePlacesAutocomplete
       placeholder={placeholder}
@@ -85,8 +84,8 @@ export const AddressAutocomplete: React.FC<AutoCompleteProps> = ({
           width: "100%",
           minHeight: "50%",
           position: "absolute",
-          left: 0,
-          top: margin ? 130 : 50,
+          left: -10,
+          top: margin ? 110 : 50,
           elevation: 10,
         },
       }}

@@ -1,34 +1,42 @@
 import * as Location from "expo-location";
 
 import {
-  Dimensions,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+  BOOKING_ACCEPTED_SUBSCRIPTION,
+  BOOKING_MUTATION,
+  GET_NEARBY_DRIVERS,
+} from "./queriesAndMutations";
+import { Dimensions, SafeAreaView, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
-import { NavigationProp, useIsFocused } from "@react-navigation/native";
 import React, { useState } from "react";
+import {
+  useLazyQuery,
+  useMutation,
+  useSubscription,
+} from "@apollo/react-hooks";
 
-import { AddressData } from "../enter-destination";
-import Axios from "axios";
-import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
-import { GET_NEARBY_DRIVERS } from "./queriesAndMutations";
+import { DriverDetails } from "./components/driver-view";
 import { GET_TRIPPRICE_BASEDON_LOCATION } from "../enter-destination/queriesAndMutations";
 import { Icons } from "../../constants/icons";
+import { InitalView } from "./components/initial-view";
+import { Loader } from "../Common/loader";
 import { MenuButton } from "../Common/MenuButton";
+import { NavigationProp } from "@react-navigation/native";
 import { Point } from "react-native-google-places-autocomplete";
-import { RideView } from "../ride-type";
-import { TabletButton } from "../Common/Tablet";
+import { RoutesView } from "./components/routes-view";
 import { getAddressFromLatLong } from "../../utils/address-based-on-latlng";
-import { greetingsBasedOnTime } from "../../utils/GreetingsBasedOnCurrentTime";
+import { getPolyline } from "../../utils/polyline";
+import { getReadableAddress } from "../../utils/get-readable-address";
 import { mapStyle } from "../../constants/MapStyle";
-import polyline from "@mapbox/polyline";
 import styled from "styled-components/native";
-import { useLazyQuery } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
+
+enum ScreenState {
+  INITIAL,
+  ROUTES,
+  SEARCHING,
+  DRIVERASSIGNED,
+}
 
 interface BookingScreenProps {
   navigation: NavigationProp<any, any>;
@@ -39,7 +47,7 @@ const BackgroundView = styled(SafeAreaView)`
   background-color: ${Color.BackgroundView.Background};
 `;
 
-const MenuButtonWrapper = styled(View)`
+const MenuButtonWrapper = styled.View`
   margin-left: 25px;
   margin-top: 25px;
 `;
@@ -51,59 +59,76 @@ const Map = styled(MapView)`
   position: absolute;
 `;
 
-const WhereToWrapper = styled(View)`
+const WhereToWrapper = styled.View`
   position: absolute;
   bottom: 0;
   min-width: 90%;
   height: auto;
-  background-color: #ececec;
-  border-top-left-radius: 25px;
-  border-top-right-radius: 25px;
+  background-color: #fafafa;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
   display: flex;
   left: 10px;
   right: 10px;
+
+  box-shadow: 0px -20px 20px rgba(0, 0, 0, 0.051);
+  /* TODO: above */
 `;
 
-const GreetingsText = styled(Text)`
-  font-size: 19px;
-  font-family: "SFPro-Regular";
-  margin-top: 15px;
-  margin-left: 18px;
-  font-weight: 100;
-  margin-bottom: 20px;
-  color: ${Color.Text.Normal.Color};
-`;
-
-const WhereToTextWrapper = styled(TouchableOpacity)`
-  margin: 0 auto;
-  background-color: #fff;
-  border: 0.5px solid rgba(112, 112, 112, 0.2);
-  width: 90%;
-  height: 90px;
-  border-radius: 20px;
-  justify-content: center;
-`;
-
-const OptionsWrapper = styled(View)`
-  width: 100%;
-  height: 60px;
-  background-color: transparent;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  margin-top: 20px;
-  margin-bottom: 10px;
-`;
-
-const MarkerDot = styled(View)`
+const MarkerDot = styled.View`
   background-color: #2ecb70;
   width: 18px;
   height: 18px;
   border-radius: 9px;
 `;
 
+const MarkerCar = styled.Image`
+  width: 40px;
+  height: 40px;
+`;
+
+const DestinationMarkerWrapper = styled(TouchableOpacity)`
+  width: 164px;
+  height: 48px;
+  padding: 5px;
+  max-width: 164px;
+  max-height: 48px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  background-color: #0e1823;
+  border-radius: 20px;
+  flex-direction: row;
+`;
+
+const DestMarkerImage = styled.Image`
+  width: 43px;
+  height: 43px;
+  margin-left: 6px;
+`;
+
+const DestMarkerText = styled.Text`
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  font-family: "SFPro-Regular";
+  color: #fff;
+  flex: 1;
+  margin-left: 3px;
+`;
+
+const EditDest = styled.Image`
+  width: 13px;
+  height: 16px;
+  margin-left: 3px;
+  margin-right: 3px;
+`;
+
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
-  const isFocused = useIsFocused(); // FIXME: find a better way of doing this
+  const [screenState, updateScreenState] = React.useState<ScreenState>(
+    ScreenState.INITIAL
+  );
 
   const { state, actions } = useOvermind();
   const { source, destination } = state;
@@ -127,6 +152,44 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     onCompleted: (completedData) => {
       console.log({ completedData });
     },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "network-only",
+  });
+
+  const [
+    requestBooking,
+    { loading: bookingLoading, error: bookingReqError, data: bookingReqData },
+  ] = useMutation(BOOKING_MUTATION, {
+    onCompleted: () => {
+      updateScreenState(ScreenState.SEARCHING);
+    },
+  });
+
+  const {
+    data: bookingAcceptedData,
+    loading: subsLoading,
+    error: subErr,
+  } = useSubscription(BOOKING_ACCEPTED_SUBSCRIPTION, {
+    onSubscriptionData: async ({ subscriptionData }) => {
+      console.log({ subscriptionData });
+      if (!subscriptionData) return;
+      const { data } = subscriptionData;
+      if (!data) return;
+      const { bookingAccepted } = data;
+      if (!source?.location || !bookingAccepted) return;
+
+      const { location } = bookingAccepted;
+      if (!location) return;
+      if (location.length < 1) return;
+      const destPoint = {
+        lat: location[1],
+        lng: location[0],
+      };
+
+      const coordinates = await getPolyline(source.location, destPoint);
+      updateCoords(coordinates);
+      updateScreenState(ScreenState.DRIVERASSIGNED);
+    },
   });
 
   React.useEffect(() => {
@@ -147,6 +210,15 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
           },
         });
 
+        if (mapRef && mapRef.current && locationData) {
+          mapRef.current?.animateToRegion({
+            latitude: locationData.coords.latitude ?? 0,
+            longitude: locationData.coords.longitude ?? 0,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
+        }
+
         async function getAddress() {
           const address = await getAddressFromLatLong(
             locationData.coords.latitude,
@@ -159,21 +231,13 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
             if (!results) return;
 
             let result = results.formatted_address;
-            let readableAddress = "";
+
             const location: Point =
               results.geometry && results.geometry.location
                 ? results.geometry.location
                 : undefined;
 
-            if (result) {
-              result = result.split(",");
-
-              if (result.length > 0) {
-                readableAddress = result[0];
-              }
-            }
-
-            actions.updateSource({ readable: readableAddress, location });
+            actions.updateSource({ readable: result, location });
           }
         }
 
@@ -182,27 +246,14 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     })();
 
     async function showPolyline() {
-      const directions = await Axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${source?.location.lat},${source?.location.lng}&destination=${destination?.location.lat},${destination?.location.lng}&mode=driving&key=AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY`
+      if (!source?.location || !destination?.location) return;
+      const coordinates = await getPolyline(
+        source?.location,
+        destination?.location
       );
 
-      if (!directions || !directions.data) return;
-
-      const directionsData = directions.data;
-
-      if (!directionsData.routes || directionsData.routes.length === 0) return;
-
-      const routes = directionsData.routes[0];
-
-      const points = polyline.decode(routes.overview_polyline.points);
-      const coordinates = points.map((point) => {
-        return {
-          latitude: point[0],
-          longitude: point[1],
-        };
-      });
-
       updateCoords(coordinates);
+      updateScreenState(ScreenState.ROUTES);
 
       if (mapRef && coordinates && coordinates.length > 1) {
         mapRef.current?.fitToCoordinates(coordinates, {
@@ -221,10 +272,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     if (source && destination) showPolyline();
   }, [source, destination]);
 
-  const moveToEnterDestinationScreen = () => {
-    navigation.navigate("EnterDestination");
-  };
-
   const getTripPriceFromDb = () => {
     if (!source || !destination) return console.log("No source or dest");
 
@@ -238,7 +285,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     )
       return console.log("No dest data");
     //TODO: show error;
-    console.log("here");
     getTripPrice({
       variables: {
         sourceLat: source.location.lat,
@@ -249,27 +295,35 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     });
   };
 
-  console.log({ coords });
-
   const onCancel = () => {
     updateCoords(undefined);
+    updateScreenState(ScreenState.INITIAL);
     actions.updateDestination(undefined);
+
+    if (mapRef && mapRef.current && source) {
+      mapRef.current?.animateToRegion({
+        latitude: source.location.lat ?? 0,
+        longitude: source.location.lng ?? 0,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+    }
   };
 
   return (
     <BackgroundView>
+      {screenState === ScreenState.SEARCHING && (
+        <Loader
+          loadingText="Please wait while we get our best driver for you"
+          onButtonPress={onCancel}
+        />
+      )}
       <Map
         provider={PROVIDER_GOOGLE}
         customMapStyle={mapStyle}
         showsUserLocation={true}
         ref={mapRef}
         zoomEnabled={true}
-        // region={{
-        //   latitude: source?.location.lat ?? 0,
-        //   longitude: source?.location.lng ?? 0,
-        //   latitudeDelta: 0.0922,
-        //   longitudeDelta: 0.0421,
-        // }}
       >
         {data &&
           data.findNearByDrivers &&
@@ -280,14 +334,19 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
                 latitude: driver?.location[1] ?? 0,
                 longitude: driver?.location[0] ?? 0,
               }}
-              icon={require("../../../assets/MarkerCar.png")}
-              rotation={-37}
-            />
+            >
+              <MarkerCar
+                key={`marker-${driver._id}`}
+                source={require("../../../assets/MarkerCar.png")}
+                resizeMode="contain"
+              />
+            </Marker>
           ))}
-        {coords &&
+        {screenState !== ScreenState.DRIVERASSIGNED &&
+          coords &&
           coords.length > 1 &&
           coords.map((coord, index) => {
-            if (index === 0 || index === coords.length - 1) {
+            if (index === 0) {
               return (
                 <Marker
                   key={index}
@@ -297,6 +356,32 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
                   }}
                 >
                   <MarkerDot />
+                </Marker>
+              );
+            }
+
+            if (index === coords.length - 1) {
+              return (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: coord.latitude ?? 0,
+                    longitude: coord?.longitude ?? 0,
+                  }}
+                  onPress={() => navigation.navigate("EnterDestination")}
+                >
+                  <DestinationMarkerWrapper
+                    onPress={() => navigation.navigate("EnterDestination")}
+                  >
+                      <DestMarkerImage
+                        source={Icons.destCar}
+                        resizeMode="contain"
+                      />
+                      <DestMarkerText>
+                        {getReadableAddress(destination?.readable ?? "")}
+                      </DestMarkerText>
+                      <EditDest source={Icons.edit} resizeMode="contain" />
+                  </DestinationMarkerWrapper>
                 </Marker>
               );
             }
@@ -311,64 +396,46 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
       </Map>
       <MenuButtonWrapper>
         {coords ? (
-          <MenuButton onClick={onCancel} source={Icons.cross} />
+          <MenuButton
+            onClick={onCancel}
+            source={Icons.cross}
+            isLoading={tripPriceLoading}
+          />
         ) : (
           <MenuButton
             onClick={() => navigation.openDrawer()}
             source={Icons.drawer}
+            isLoading={tripPriceLoading || bookingLoading}
           />
         )}
       </MenuButtonWrapper>
       <WhereToWrapper>
-        {coords &&
+        {screenState === ScreenState.ROUTES &&
+          coords &&
           tripPriceData &&
-          tripPriceData.getTripPriceBasedOnLatLng &&
-          tripPriceData.getTripPriceBasedOnLatLng.fare &&
-          tripPriceData.getTripPriceBasedOnLatLng.fare.map((fr, index: number) => (
-            <RideView
-              key={index}
-              heading={fr.type}
-              description="Affordable rides, all to yourself"
-              fare={fr.price}
+          tripPriceData.getTripPriceBasedOnLatLng && (
+            <RoutesView
+              distance={tripPriceData.getTripPriceBasedOnLatLng.distance ?? 0}
+              duration={tripPriceData.getTripPriceBasedOnLatLng.duration ?? 0}
+              options={
+                tripPriceData.getTripPriceBasedOnLatLng.fare ?? undefined
+              }
+              requestBooking={requestBooking}
             />
-          ))}
-
-        {!tripPriceData && !coords && (
-          <>
-            <GreetingsText>{greetingsBasedOnTime()}</GreetingsText>
-            <WhereToTextWrapper
-              onPress={moveToEnterDestinationScreen}
-              style={{
-                shadowColor: `${Color.Shadow.Color}`,
-                shadowOpacity: 0.05,
-                shadowOffset: {
-                  width: 0,
-                  height: 0,
-                },
-                shadowRadius: 4,
-              }}
-            >
-              <GreetingsText>Where to?</GreetingsText>
-              {source && source.readable && source.readable.length > 0 && (
-                <GreetingsText>{source.readable}</GreetingsText>
-              )}
-            </WhereToTextWrapper>
-            <OptionsWrapper>
-              <TabletButton
-                optionText="Trips"
-                onClick={() => {}}
-                selected={true}
-                imageSource={require("../../../assets/SelectedOptionTrips.png")}
-              />
-              <TabletButton
-                optionText="Eats"
-                onClick={() => {}}
-                selected={false}
-                imageSource={require("../../../assets/UnselectedOptionEats.png")}
-              />
-            </OptionsWrapper>
-          </>
+          )}
+        {!coords && ScreenState.INITIAL === screenState && (
+          <InitalView navigation={navigation} />
         )}
+        {bookingAcceptedData &&
+          screenState === ScreenState.DRIVERASSIGNED &&
+          bookingAcceptedData.bookingAccepted && (
+            <DriverDetails
+              name={bookingAcceptedData.bookingAccepted.fullName ?? "Name"}
+              phone={bookingAcceptedData.bookingAccepted.mobile ?? ""}
+              carName=""
+              onCancel={() => {}}
+            />
+          )}
       </WhereToWrapper>
     </BackgroundView>
   );
