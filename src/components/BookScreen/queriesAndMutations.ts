@@ -51,3 +51,19 @@ export const BOOKING_ACCEPTED_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const BOOKING_UPDATED_SUBSCRIPTION = gql`
+  subscription BookingUpdated($bookingId: ID!) {
+    bookingUpdated(bookingId: $bookingId) {
+      bookingId
+      driverId
+      email
+      fullName
+      mobile
+      rating
+      distance
+      location
+      status
+    }
+  }
+`;

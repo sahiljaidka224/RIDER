@@ -5,14 +5,25 @@ export interface AddressData {
   location: Point;
 }
 
+export enum ScreenState {
+  INITIAL,
+  ROUTES,
+  SEARCHING,
+  DRIVER_ASSIGNED,
+  BOOKING_IN_PROGRESS,
+  DRIVER_ARRIVED,
+  CANCELLED,
+  COMPLETED,
+}
+
 type State = {
-  counter: number;
   source: AddressData | undefined;
   destination: AddressData | undefined;
+  bookingScreenState: ScreenState;
 };
 
 export const state: State = {
-  counter: 0,
   source: undefined,
   destination: undefined,
+  bookingScreenState: ScreenState.INITIAL,
 };

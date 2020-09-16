@@ -58,7 +58,7 @@ const AuthedViews = () => {
   return (
     <Drawer.Navigator
       initialRouteName="BookingScreen"
-      drawerContent={DrawerComp}
+      drawerContent={(props) => <DrawerComp {...props} name="Pedro" />}
     >
       <Drawer.Screen name="BookingScreen" component={BookingScreen} />
       <Drawer.Screen name="EnterPhoneNumber" component={EnterPhoneNumber} />

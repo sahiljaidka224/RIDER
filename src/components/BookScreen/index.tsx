@@ -1,29 +1,24 @@
 import * as Location from "expo-location";
 
-import {
-  BOOKING_ACCEPTED_SUBSCRIPTION,
-  BOOKING_MUTATION,
-  GET_NEARBY_DRIVERS,
-} from "./queriesAndMutations";
+import { BOOKING_MUTATION, GET_NEARBY_DRIVERS } from "./queriesAndMutations";
 import { Dimensions, SafeAreaView, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 import React, { useState } from "react";
 import {
   useLazyQuery,
   useMutation,
-  useSubscription,
 } from "@apollo/react-hooks";
 
+import { BookingView } from "./components/booking-view";
 import { Color } from "../../constants/Theme";
-import { DriverDetails } from "./components/driver-view";
 import { GET_TRIPPRICE_BASEDON_LOCATION } from "../enter-destination/queriesAndMutations";
 import { Icons } from "../../constants/icons";
 import { InitalView } from "./components/initial-view";
-import { Loader } from "../Common/loader";
 import { MenuButton } from "../Common/MenuButton";
 import { NavigationProp } from "@react-navigation/native";
 import { Point } from "react-native-google-places-autocomplete";
 import { RoutesView } from "./components/routes-view";
+import { ScreenState } from "../../../overmind/state";
 import { getAddressFromLatLong } from "../../utils/address-based-on-latlng";
 import { getPolyline } from "../../utils/polyline";
 import { getReadableAddress } from "../../utils/get-readable-address";
@@ -31,16 +26,11 @@ import { mapStyle } from "../../constants/MapStyle";
 import styled from "styled-components/native";
 import { useOvermind } from "../../../overmind";
 
-enum ScreenState {
-  INITIAL,
-  ROUTES,
-  SEARCHING,
-  DRIVERASSIGNED,
-}
-
 interface BookingScreenProps {
   navigation: NavigationProp<any, any>;
 }
+
+export type Coords = { latitude: number; longitude: number };
 
 const BackgroundView = styled(SafeAreaView)`
   flex: 1;
@@ -126,22 +116,21 @@ const EditDest = styled.Image`
 `;
 
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
-  const [screenState, updateScreenState] = React.useState<ScreenState>(
-    ScreenState.INITIAL
+  const { state, actions } = useOvermind();
+  const { source, destination, bookingScreenState } = state;
+  const [bookingInProg, updateBookingInProgress] = React.useState<boolean>(
+    false
   );
 
-  const { state, actions } = useOvermind();
-  const { source, destination } = state;
-
-  const [coords, updateCoords] = useState<
-    [{ latitude: number; longitude: number }]
-  >();
+  const [coords, updateCoords] = useState<[Coords]>();
   const mapRef = React.useRef<MapView>(null);
 
   const [getDrivers, { loading, data, error }] = useLazyQuery(
     GET_NEARBY_DRIVERS,
     {
-      pollInterval: 40000,
+      pollInterval: 60000,
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",
     }
   );
 
@@ -161,36 +150,16 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     { loading: bookingLoading, error: bookingReqError, data: bookingReqData },
   ] = useMutation(BOOKING_MUTATION, {
     onCompleted: () => {
-      updateScreenState(ScreenState.SEARCHING);
+      updateBookingInProgress(true);
+      actions.updateBookingScreenState(ScreenState.SEARCHING);
     },
   });
 
-  const {
-    data: bookingAcceptedData,
-    loading: subsLoading,
-    error: subErr,
-  } = useSubscription(BOOKING_ACCEPTED_SUBSCRIPTION, {
-    onSubscriptionData: async ({ subscriptionData }) => {
-      console.log({ subscriptionData });
-      if (!subscriptionData) return;
-      const { data } = subscriptionData;
-      if (!data) return;
-      const { bookingAccepted } = data;
-      if (!source?.location || !bookingAccepted) return;
+  const updateRoute = (coordinates: [Coords]) => {
+    updateCoords(coordinates);
+  };
 
-      const { location } = bookingAccepted;
-      if (!location) return;
-      if (location.length < 1) return;
-      const destPoint = {
-        lat: location[1],
-        lng: location[0],
-      };
-
-      const coordinates = await getPolyline(source.location, destPoint);
-      updateCoords(coordinates);
-      updateScreenState(ScreenState.DRIVERASSIGNED);
-    },
-  });
+  console.log({ bookingReqData, coords });
 
   React.useEffect(() => {
     (async () => {
@@ -253,7 +222,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
       );
 
       updateCoords(coordinates);
-      updateScreenState(ScreenState.ROUTES);
+      actions.updateBookingScreenState(ScreenState.ROUTES);
 
       if (mapRef && coordinates && coordinates.length > 1) {
         mapRef.current?.fitToCoordinates(coordinates, {
@@ -297,7 +266,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
 
   const onCancel = () => {
     updateCoords(undefined);
-    updateScreenState(ScreenState.INITIAL);
+    actions.updateBookingScreenState(ScreenState.INITIAL);
     actions.updateDestination(undefined);
 
     if (mapRef && mapRef.current && source) {
@@ -312,12 +281,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
 
   return (
     <BackgroundView>
-      {screenState === ScreenState.SEARCHING && (
-        <Loader
-          loadingText="Please wait while we get our best driver for you"
-          onButtonPress={onCancel}
-        />
-      )}
       <Map
         provider={PROVIDER_GOOGLE}
         customMapStyle={mapStyle}
@@ -325,7 +288,9 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         ref={mapRef}
         zoomEnabled={true}
       >
-        {data &&
+        {(bookingScreenState === ScreenState.INITIAL ||
+          bookingScreenState === ScreenState.ROUTES) &&
+          data &&
           data.findNearByDrivers &&
           data.findNearByDrivers.map((driver) => (
             <Marker
@@ -342,7 +307,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               />
             </Marker>
           ))}
-        {screenState !== ScreenState.DRIVERASSIGNED &&
+        {(bookingScreenState === ScreenState.ROUTES ||
+          bookingScreenState === ScreenState.DRIVER_ASSIGNED) &&
           coords &&
           coords.length > 1 &&
           coords.map((coord, index) => {
@@ -361,6 +327,23 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
             }
 
             if (index === coords.length - 1) {
+              if (bookingScreenState === ScreenState.DRIVER_ASSIGNED) {
+                return (
+                  <Marker
+                    key={index}
+                    coordinate={{
+                      latitude: coord.latitude ?? 0,
+                      longitude: coord?.longitude ?? 0,
+                    }}
+                  >
+                    <MarkerCar
+                      key={`marker-${index}`}
+                      source={require("../../../assets/MarkerCar.png")}
+                      resizeMode="contain"
+                    />
+                  </Marker>
+                );
+              }
               return (
                 <Marker
                   key={index}
@@ -373,29 +356,33 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
                   <DestinationMarkerWrapper
                     onPress={() => navigation.navigate("EnterDestination")}
                   >
-                      <DestMarkerImage
-                        source={Icons.destCar}
-                        resizeMode="contain"
-                      />
-                      <DestMarkerText>
-                        {getReadableAddress(destination?.readable ?? "")}
-                      </DestMarkerText>
-                      <EditDest source={Icons.edit} resizeMode="contain" />
+                    <DestMarkerImage
+                      source={Icons.destCar}
+                      resizeMode="contain"
+                    />
+                    <DestMarkerText>
+                      {getReadableAddress(destination?.readable ?? "")}
+                    </DestMarkerText>
+                    <EditDest source={Icons.edit} resizeMode="contain" />
                   </DestinationMarkerWrapper>
                 </Marker>
               );
             }
           })}
-        {coords && coords.length > 1 && (
-          <Polyline
-            strokeWidth={4}
-            strokeColor="#2ECB70"
-            coordinates={coords ? coords : []}
-          />
-        )}
+        {(bookingScreenState === ScreenState.ROUTES ||
+          bookingScreenState === ScreenState.DRIVER_ASSIGNED) &&
+          coords &&
+          coords.length > 1 && (
+            <Polyline
+              key={Math.random()}
+              strokeWidth={4}
+              strokeColor="#2ECB70"
+              coordinates={coords ? coords : []}
+            />
+          )}
       </Map>
       <MenuButtonWrapper>
-        {coords ? (
+        {coords && bookingScreenState === ScreenState.ROUTES ? (
           <MenuButton
             onClick={onCancel}
             source={Icons.cross}
@@ -410,11 +397,15 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         )}
       </MenuButtonWrapper>
       <WhereToWrapper>
-        {screenState === ScreenState.ROUTES &&
+        {!coords && ScreenState.INITIAL === bookingScreenState && (
+          <InitalView navigation={navigation} />
+        )}
+        {bookingScreenState === ScreenState.ROUTES &&
           coords &&
           tripPriceData &&
           tripPriceData.getTripPriceBasedOnLatLng && (
             <RoutesView
+              key={Math.random()}
               distance={tripPriceData.getTripPriceBasedOnLatLng.distance ?? 0}
               duration={tripPriceData.getTripPriceBasedOnLatLng.duration ?? 0}
               options={
@@ -423,17 +414,13 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               requestBooking={requestBooking}
             />
           )}
-        {!coords && ScreenState.INITIAL === screenState && (
-          <InitalView navigation={navigation} />
-        )}
-        {bookingAcceptedData &&
-          screenState === ScreenState.DRIVERASSIGNED &&
-          bookingAcceptedData.bookingAccepted && (
-            <DriverDetails
-              name={bookingAcceptedData.bookingAccepted.fullName ?? "Name"}
-              phone={bookingAcceptedData.bookingAccepted.mobile ?? ""}
-              carName=""
-              onCancel={() => {}}
+        {bookingReqData &&
+          bookingReqData.createBooking &&
+          bookingReqData.createBooking.id &&
+          bookingInProg && (
+            <BookingView
+              bookingId={bookingReqData.createBooking.id}
+              updateRoute={updateRoute}
             />
           )}
       </WhereToWrapper>
