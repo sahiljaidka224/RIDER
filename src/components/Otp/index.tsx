@@ -1,30 +1,19 @@
-import {
-  ByContinuingText,
-  EnterMobileNumberText,
-  NextButtonWrapper,
-} from "../EnterPhoneNumber";
+import { EnterMobileNumberText, NextButtonWrapper } from "../EnterPhoneNumber";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import { Platform, SafeAreaView, Text, TextInput, View } from "react-native";
+import { RESEND_OTP, VERIFY_OTP } from "./queriesAndMutations";
 
 import { BackButton } from "../Common/BackButton";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
-import { VERIFY_OTP } from "./queriesAndMutations";
-import { _ } from "lodash";
+import { Timer } from "./timer";
+import { setToken } from "../../../auth";
 import styled from "styled-components/native";
 import { useMutation } from "@apollo/react-hooks";
-
-interface ParamList {
-  number: string;
-}
 
 interface OtpScreenProps {
   navigation: NavigationProp<any, any>;
   route: RouteProp<any, any>;
-}
-
-interface OTPState {
-  [key: string]: string;
 }
 
 const BackgroundView = styled(SafeAreaView)`
@@ -91,32 +80,28 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
 
   const [otp, updateOtp] = React.useState<string[]>([]);
   const [editingIndex, updateEditingIndex] = React.useState<Number>(0);
-  const [seconds, updateSeconds] = React.useState(35);
 
   const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
-    onCompleted: (completedData) => {
-      navigation.navigate("BookingScreen");
+    onCompleted: ({ verifyOtp }) => {
+      if (verifyOtp) {
+        const { token } = verifyOtp;
+
+        if (token) {
+          setToken(token);
+          navigation.navigate("BookingScreen");
+        }
+      }
     },
   });
+
+  const [resendOtp, { loading: resendOtpLoading }] = useMutation(RESEND_OTP);
 
   const onBackClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
   };
-  // TODO: remove timer from state
-  // TODO: resend functionality
-
-  React.useEffect(() => {
-    if (!seconds) return;
-
-    // const intervalId = setInterval(() => {
-    //   updateSeconds(seconds - 1);
-    // }, 1000);
-
-    // return () => clearInterval(intervalId);
-  }, [seconds]);
 
   const onNextButtonClick = () => {
-    if (otp.length < 4) return; // TODO: show error
+    if (otp.length < 4) return;
 
     const otpToVerify = otp.toString().replaceAll(",", "");
     if (otpToVerify.length === 4) {
@@ -125,8 +110,6 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
       });
     }
   };
-
-  console.log({ loading, error, data });
 
   return (
     <BackgroundView>
@@ -172,11 +155,9 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
         </ContainerNumber>
         <ContainerButton>
           <NextButtonWrapper>
-            <ByContinuingText>
-              {`Resend code in 0:${seconds > 9 ? seconds : `0${seconds}`}`}
-            </ByContinuingText>
+            <Timer resendOtp={resendOtp} number={number} />
             <NextButton
-              loading={loading}
+              loading={loading || resendOtpLoading}
               onClick={!loading ? onNextButtonClick : () => {}}
               isValid={otp.length === 4}
             />

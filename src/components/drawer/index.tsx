@@ -5,6 +5,7 @@ import { DrawerItem } from "@react-navigation/drawer";
 import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
+import { setToken } from "../../../auth";
 import styled from "styled-components/native";
 
 type DrawerProps = {
@@ -70,7 +71,10 @@ export const DrawerComp: React.FC<Props> = (props) => {
           return (
             <DrawerItem
               label={title}
-              onPress={() => {props.navigation.navigate("EnterPhoneNumber")}}
+              onPress={() => {
+                //   props.navigation.navigate("EnterPhoneNumber")
+
+              }}
               labelStyle={styles.list}
             />
           );

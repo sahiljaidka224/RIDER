@@ -1,17 +1,8 @@
-// import { ApolloClient, HttpLink, split } from "@apollo/client";
-
-// import { InMemoryCache } from "apollo-cache-inmemory";
-// import { WebSocketLink } from "@apollo/client/link/ws";
-// // import { WebSocketLink } from "apollo-link-ws";
-// import { getMainDefinition } from "@apollo/client/utilities";
-
 import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
-// Setup the network "links"
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
-// import { getMainDefinition } from "@apollo/client/utilities";
 import { split } from "apollo-link";
 
 const httpLink = new HttpLink({

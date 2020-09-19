@@ -1,3 +1,5 @@
+import * as SecureStore from "expo-secure-store";
+
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookingScreen } from "./src/components/BookScreen";
@@ -15,6 +17,7 @@ import { config } from "./overmind";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createOvermind } from "overmind";
 import { createStackNavigator } from "@react-navigation/stack";
+import { isSignedIn } from "./auth";
 import { useFonts } from "@use-expo/font";
 
 const overmind = createOvermind(config, {
@@ -36,8 +39,8 @@ const MainStackScreen = () => {
       />
       <MainStack.Screen
         name="EnterPhoneNumber"
-        // component={EnterPhoneNumber}
-        component={AuthedViews}
+        component={EnterPhoneNumber}
+        // component={AuthedViews}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
@@ -61,29 +64,48 @@ const AuthedViews = () => {
       drawerContent={(props) => <DrawerComp {...props} name="Pedro" />}
     >
       <Drawer.Screen name="BookingScreen" component={BookingScreen} />
-      <Drawer.Screen name="EnterPhoneNumber" component={EnterPhoneNumber} />
     </Drawer.Navigator>
   );
 };
 
 export default function App() {
+  const [auth, updateAuth] = React.useState(false);
+  const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
+  const signedIn = isSignedIn()
+    .then((res) => {
+      updateAuth(res);
+      updateCheckedSignedIn(true);
+    })
+    .catch((err) => alert("An error occurred"));
+
   const [isLoaded] = useFonts({
     "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
   });
 
-  if (!isLoaded) {
+  if (!isLoaded || !checkedSignedIn) {
     return <AppLoading />;
   }
+
+  console.log({ auth });
   return (
     <ApolloProvider client={client}>
       <Provider value={overmind}>
         <NavigationContainer>
           <RootStack.Navigator mode="modal">
-            <RootStack.Screen
-              name="Main"
-              component={MainStackScreen}
-              options={{ headerShown: false }}
-            />
+            {auth ? (
+              <RootStack.Screen
+                name="AuthedViews"
+                component={AuthedViews}
+                options={{ headerShown: false }}
+              />
+            ) : (
+              <RootStack.Screen
+                name="Main"
+                component={MainStackScreen}
+                options={{ headerShown: false }}
+              />
+            )}
+
             <RootStack.Screen
               name="EnterDestination"
               component={EnterDestinationScreen}

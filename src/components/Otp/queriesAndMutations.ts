@@ -11,3 +11,11 @@ export const VERIFY_OTP = gql`
     }
   }
 `;
+
+export const RESEND_OTP = gql`
+  mutation ResendOtp($mobile: String!) {
+    resendOtp(mobile: $mobile) {
+      _id
+    }
+  }
+`;
