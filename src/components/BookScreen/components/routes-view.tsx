@@ -54,39 +54,40 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
     <>
       <TopHighlight />
       <ChooseTrip>{timeString}</ChooseTrip>
-      {options && options.map((opt, index) => {
-        const { type, price } = opt;
+      {options &&
+        options.map((opt, index) => {
+          const { type, price } = opt;
 
-        const onPress = () => {
-          if (!source || !destination) return;
-          requestBooking({
-            variables: {
-              type: type,
-              proposedFare: price,
-              sourceAddress: source.readable,
-              destAddress: destination.readable,
-              sourceLat: source.location.lat,
-              sourceLng: source.location.lng,
-              destLat: destination.location.lat,
-              destLng: destination.location.lng,
-            },
-          });
-        };
-        return (
-          <>
-            <RideView
-              key={index}
-              heading={type}
-              description="Affordable rides, all to yourself"
-              fare={price}
-              onPress={onPress}
-            />
-            {index + 1 !== options.length && (
-              <HorizontalLine key={`${index}-line`} />
-            )}
-          </>
-        );
-      })}
+          const onPress = () => {
+            if (!source || !destination) return;
+            requestBooking({
+              variables: {
+                type: type,
+                proposedFare: price,
+                sourceAddress: source.readable,
+                destAddress: destination.readable,
+                sourceLat: source.location.lat,
+                sourceLng: source.location.lng,
+                destLat: destination.location.lat,
+                destLng: destination.location.lng,
+              },
+            });
+          };
+          return (
+            <React.Fragment key={index}>
+              <RideView
+                key={index}
+                heading={type}
+                description="Affordable rides, all to yourself"
+                fare={price}
+                onPress={onPress}
+              />
+              {index + 1 !== options.length && (
+                <HorizontalLine key={`${index}-line`} />
+              )}
+            </React.Fragment>
+          );
+        })}
     </>
   );
 };

@@ -48,12 +48,15 @@ const MenuWrapper = styled.View`
 const optionsList = [
   {
     title: "Your trips",
+    id: "1",
   },
   {
     title: "Payment",
+    id: "2",
   },
   {
     title: "Settings",
+    id: "3",
   },
 ];
 
@@ -67,13 +70,13 @@ export const DrawerComp: React.FC<Props> = (props) => {
       <Name>Pedro</Name>
       <MenuWrapper>
         {optionsList.map((ol) => {
-          const { title } = ol;
+          const { title, id } = ol;
           return (
             <DrawerItem
+              key={id}
               label={title}
               onPress={() => {
                 //   props.navigation.navigate("EnterPhoneNumber")
-
               }}
               labelStyle={styles.list}
             />

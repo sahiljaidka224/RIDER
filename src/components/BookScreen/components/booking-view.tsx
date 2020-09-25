@@ -18,7 +18,8 @@ const BackgroundView = styled.View`
   background-color: red;
   height: auto;
   width: auto;
-  min-height: 15%;
+  min-width: 40px;
+  min-height: 15px;
 `;
 
 export const BookingView: React.FC<BookingViewProps> = ({
@@ -53,8 +54,6 @@ export const BookingView: React.FC<BookingViewProps> = ({
       },
     }
   );
-
-  console.log({ bookingUpdatedData });
 
   return (
     <>

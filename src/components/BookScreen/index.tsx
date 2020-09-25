@@ -4,10 +4,7 @@ import { BOOKING_MUTATION, GET_NEARBY_DRIVERS } from "./queriesAndMutations";
 import { Dimensions, SafeAreaView, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 import React, { useState } from "react";
-import {
-  useLazyQuery,
-  useMutation,
-} from "@apollo/react-hooks";
+import { useLazyQuery, useMutation } from "@apollo/react-hooks";
 
 import { BookingView } from "./components/booking-view";
 import { Color } from "../../constants/Theme";
@@ -150,8 +147,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     { loading: bookingLoading, error: bookingReqError, data: bookingReqData },
   ] = useMutation(BOOKING_MUTATION, {
     onCompleted: () => {
-      updateBookingInProgress(true);
       actions.updateBookingScreenState(ScreenState.SEARCHING);
+      updateBookingInProgress(true);
     },
   });
 
