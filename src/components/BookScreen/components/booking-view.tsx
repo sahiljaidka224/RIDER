@@ -1,4 +1,9 @@
-import { BOOKING_UPDATED_SUBSCRIPTION } from "../queriesAndMutations";
+import {
+  BOOKING_UPDATED_SUBSCRIPTION,
+  UPDATE_BOOKING_MUTATION,
+} from "../queriesAndMutations";
+import { useMutation, useSubscription } from "@apollo/react-hooks";
+
 import { Coords } from "..";
 import { DriverDetails } from "./driver-view";
 import { Loader } from "../../Common/loader";
@@ -7,19 +12,19 @@ import { ScreenState } from "../../../../overmind/state";
 import { getPolyline } from "../../../utils/polyline";
 import styled from "styled-components/native";
 import { useOvermind } from "../../../../overmind";
-import { useSubscription } from "@apollo/react-hooks";
 
 type BookingViewProps = {
   bookingId: string;
-  updateRoute: (coordinates: [Coords]) => void;
+  updateRoute: (coordinates: [Coords] | undefined) => void;
 };
 
 const BackgroundView = styled.View`
-  background-color: red;
   height: auto;
   width: auto;
   min-width: 40px;
-  min-height: 15px;
+  min-height: 200px;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
 `;
 
 export const BookingView: React.FC<BookingViewProps> = ({
@@ -55,9 +60,35 @@ export const BookingView: React.FC<BookingViewProps> = ({
     }
   );
 
+  const [
+    updateBooking,
+    { loading: updateBookingLoading, error: updateBookingError },
+  ] = useMutation(UPDATE_BOOKING_MUTATION, {
+    onCompleted: ({ bookingUpdated }) => {
+      updateRoute(undefined);
+      actions.updateBookingScreenState(ScreenState.INITIAL);
+    },
+  });
+
+  const onCancel = () => {
+    if (bookingId) {
+      updateBooking({
+        variables: { bookingId, status: "CANCELLED_BY_USER" },
+      });
+    }
+  };
+
   return (
     <>
-      {bookingScreenState === ScreenState.SEARCHING && <BackgroundView />}
+      {bookingScreenState === ScreenState.SEARCHING && (
+        <BackgroundView>
+          <Loader
+            onButtonPress={onCancel}
+            loadingText="Plese wait while we get our best drivers for you..."
+            loading={updateBookingLoading}
+          />
+        </BackgroundView>
+      )}
       {bookingUpdatedData &&
         bookingScreenState === ScreenState.DRIVER_ASSIGNED &&
         bookingUpdatedData.bookingUpdated && (
@@ -65,7 +96,8 @@ export const BookingView: React.FC<BookingViewProps> = ({
             name={bookingUpdatedData.bookingUpdated.fullName ?? "Name"}
             phone={bookingUpdatedData.bookingUpdated.mobile ?? ""}
             carName=""
-            onCancel={() => {}}
+            onCancel={onCancel}
+            loading={updateBookingLoading}
           />
         )}
     </>

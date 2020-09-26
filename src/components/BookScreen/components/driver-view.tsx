@@ -1,5 +1,6 @@
 import * as Linking from "expo-linking";
 
+import { ActivityIndicator } from "react-native";
 import { Color } from "../../../constants/Theme";
 import { Icons } from "../../../constants/icons";
 import React from "react";
@@ -10,6 +11,7 @@ interface DriverDetailsProps {
   carName?: string;
   phone: string;
   onCancel: () => void;
+  loading?: boolean;
 }
 
 const Container = styled.View`
@@ -96,6 +98,7 @@ export const DriverDetails: React.FC<DriverDetailsProps> = ({
   carName = "Toyota Camry",
   phone = "0475431313",
   onCancel,
+  loading,
 }) => {
   const onPress = () => {
     Linking.openURL(`tel:${phone.replace(/-/g, "")}`);
@@ -113,8 +116,12 @@ export const DriverDetails: React.FC<DriverDetailsProps> = ({
         </CallWrapper>
       </Wrapper>
       <CancelWrapper>
-        <CancelButton onPress={onCancel}>
-          <CancelText>Abort</CancelText>
+        <CancelButton onPress={onCancel} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            <CancelText>Abort</CancelText>
+          )}
         </CancelButton>
       </CancelWrapper>
     </Container>

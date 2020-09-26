@@ -1,4 +1,4 @@
-import { Animated, Easing } from "react-native";
+import { ActivityIndicator, Animated, Easing } from "react-native";
 
 import { Color } from "../../../constants/Theme";
 import React from "react";
@@ -8,6 +8,7 @@ interface LoaderProps {
   loadingText?: string;
   onButtonPress: () => void;
   buttonTitle?: string;
+  loading?: boolean;
 }
 
 const BackgroundView = styled.View`
@@ -17,12 +18,9 @@ const BackgroundView = styled.View`
   align-items: center;
   opacity: 0.7;
   display: flex;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  min-height: 20%;
 `;
 
 const LoadingWrapper = styled.View`
@@ -53,10 +51,35 @@ const LoaderButton = styled.Button`
   background-color: ${Color.Button.Background};
 `;
 
+const CancelWrapper = styled.View`
+  display: flex;
+  align-items: center;
+`;
+
+const CancelButton = styled.TouchableOpacity`
+  width: 140px;
+  height: 55px;
+  border-radius: 20px;
+  background-color: #e5e6e7;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+`;
+
+const CancelText = styled.Text`
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 17px;
+  font-family: "SFPro-Regular";
+  color: #0e1823;
+`;
+
 export const Loader: React.FC<LoaderProps> = ({
   loadingText = "Loading ...",
   onButtonPress,
   buttonTitle = "Cancel",
+  loading,
 }) => {
   const [spin, updateSpin] = React.useState(new Animated.Value(0));
 
@@ -88,7 +111,15 @@ export const Loader: React.FC<LoaderProps> = ({
         />
         <LoadingText>{loadingText}</LoadingText>
       </LoadingWrapper>
-      <LoaderButton title={buttonTitle} onPress={onButtonPress} />
+      <CancelWrapper>
+        <CancelButton onPress={onButtonPress} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            <CancelText>Abort</CancelText>
+          )}
+        </CancelButton>
+      </CancelWrapper>
     </BackgroundView>
   );
 };

@@ -67,3 +67,12 @@ export const BOOKING_UPDATED_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const UPDATE_BOOKING_MUTATION = gql`
+  mutation UpdateBooking($bookingId: ID!, $status: String!) {
+    driverUpdateBooking(bookingId: $bookingId, status: $status) {
+      bookingId
+      status
+    }
+  }
+`;

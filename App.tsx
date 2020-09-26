@@ -86,7 +86,6 @@ export default function App() {
     return <AppLoading />;
   }
 
-  console.log({ auth });
   return (
     <ApolloProvider client={client}>
       <Provider value={overmind}>

@@ -152,11 +152,11 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     },
   });
 
-  const updateRoute = (coordinates: [Coords]) => {
+  const updateRoute = (coordinates: [Coords] | undefined) => {
     updateCoords(coordinates);
   };
 
-  console.log({ bookingReqData, coords });
+  console.log({bookingScreenState, coords})
 
   React.useEffect(() => {
     (async () => {
