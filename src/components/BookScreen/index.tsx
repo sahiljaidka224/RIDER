@@ -16,6 +16,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { Point } from "react-native-google-places-autocomplete";
 import { RoutesView } from "./components/routes-view";
 import { ScreenState } from "../../../overmind/state";
+import { StatusBar } from "expo-status-bar";
 import { getAddressFromLatLong } from "../../utils/address-based-on-latlng";
 import { getPolyline } from "../../utils/polyline";
 import { getReadableAddress } from "../../utils/get-readable-address";
@@ -421,6 +422,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
             />
           )}
       </WhereToWrapper>
+      <StatusBar style="auto" />
     </BackgroundView>
   );
 };

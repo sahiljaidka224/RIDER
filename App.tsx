@@ -12,6 +12,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { OtpScreen } from "./src/components/Otp";
 import { Provider } from "overmind-react";
 import React from "react";
+import { YourRides } from "./src/components/your-rides";
 import client from "./client";
 import { config } from "./overmind";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -62,8 +63,19 @@ const AuthedViews = () => {
     <Drawer.Navigator
       initialRouteName="BookingScreen"
       drawerContent={(props) => <DrawerComp {...props} name="Pedro" />}
+      hideStatusBar
     >
       <Drawer.Screen name="BookingScreen" component={BookingScreen} />
+      <Drawer.Screen
+        name="YourRides"
+        component={YourRides}
+        options={{ gestureEnabled: false, unmountOnBlur: true }}
+      />
+      <RootStack.Screen
+        name="Main"
+        component={MainStackScreen}
+        options={{ headerShown: false }}
+      />
     </Drawer.Navigator>
   );
 };
@@ -80,11 +92,20 @@ export default function App() {
 
   const [isLoaded] = useFonts({
     "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
+    "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
   });
+
+  React.useEffect(() => {
+    async () => {
+      console.log(signedIn);
+    };
+  }, []);
 
   if (!isLoaded || !checkedSignedIn) {
     return <AppLoading />;
   }
+
+  console.log({ auth });
 
   return (
     <ApolloProvider client={client}>
