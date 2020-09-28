@@ -10,6 +10,7 @@ import { Timer } from "./timer";
 import { setToken } from "../../../auth";
 import styled from "styled-components/native";
 import { useMutation } from "@apollo/react-hooks";
+import { useOvermind } from "../../../overmind";
 
 interface OtpScreenProps {
   navigation: NavigationProp<any, any>;
@@ -77,14 +78,19 @@ const Error = styled(Text)`
 
 export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
   const { number, id } = route.params;
+  const { actions } = useOvermind();
 
   const [otp, updateOtp] = React.useState<string[]>([]);
   const [editingIndex, updateEditingIndex] = React.useState<Number>(0);
 
   const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
-    onCompleted: ({ verifyOtp }) => {
+    onCompleted: async ({ verifyOtp }) => {
       if (verifyOtp) {
-        const { token } = verifyOtp;
+        const { token, fullName, email, mobile } = verifyOtp;
+
+        if (fullName || email || mobile) {
+          actions.updateUserDetails({ fullName, email, mobile });
+        }
 
         if (token) {
           setToken(token);

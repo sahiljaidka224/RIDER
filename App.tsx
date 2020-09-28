@@ -1,10 +1,10 @@
-import * as SecureStore from "expo-secure-store";
-
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookingScreen } from "./src/components/BookScreen";
 import { DrawerComp } from "./src/components/drawer";
-import { EnableNotifications } from "./src/components/EnableNotification";
+import { EditAccount } from "./src/components/edit-account";
+import { EditFieldScreen } from "./src/components/edit-account/components/edit-detail";
+// import { EnableNotifications } from "./src/components/EnableNotification";
 import { EnterDestinationScreen } from "./src/components/enter-destination";
 import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
@@ -41,7 +41,6 @@ const MainStackScreen = () => {
       <MainStack.Screen
         name="EnterPhoneNumber"
         component={EnterPhoneNumber}
-        // component={AuthedViews}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
@@ -69,7 +68,12 @@ const AuthedViews = () => {
       <Drawer.Screen
         name="YourRides"
         component={YourRides}
-        options={{ gestureEnabled: false, unmountOnBlur: true }}
+        options={{ gestureEnabled: false }}
+      />
+      <Drawer.Screen
+        name="EditAccount"
+        component={EditAccount}
+        options={{ gestureEnabled: false }}
       />
       <RootStack.Screen
         name="Main"
@@ -95,12 +99,6 @@ export default function App() {
     "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
   });
 
-  React.useEffect(() => {
-    async () => {
-      console.log(signedIn);
-    };
-  }, []);
-
   if (!isLoaded || !checkedSignedIn) {
     return <AppLoading />;
   }
@@ -125,13 +123,19 @@ export default function App() {
                 options={{ headerShown: false }}
               />
             )}
-
             <RootStack.Screen
               name="EnterDestination"
               component={EnterDestinationScreen}
               options={{
                 headerShown: false,
                 cardStyle: { backgroundColor: "transparent" },
+              }}
+            />
+            <RootStack.Screen
+              name="EditFieldScreen"
+              component={EditFieldScreen}
+              options={{
+                headerShown: false,
               }}
             />
           </RootStack.Navigator>

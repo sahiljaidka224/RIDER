@@ -1,4 +1,4 @@
-import { AddressData, ScreenState } from "./state";
+import { AddressData, ScreenState, UserDetails } from "./state";
 
 import { Action } from "overmind";
 
@@ -18,4 +18,11 @@ export const updateBookingScreenState: Action<ScreenState> = (
   screenState
 ) => {
   state.bookingScreenState = screenState;
+};
+
+export const updateUserDetails: Action<UserDetails> = (
+  { state },
+  userDetails
+) => {
+  state.userDetails = userDetails;
 };

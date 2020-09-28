@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, SafeAreaView } from "react-native";
+import { ActivityIndicator, FlatList } from "react-native";
 
 import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
@@ -9,13 +9,14 @@ import { TripOverView } from "./components/trip-overview";
 import styled from "styled-components/native";
 import { useQuery } from "@apollo/react-hooks";
 
-interface YourRidesProps {
+type YourRidesProps = {
   navigation: NavigationProp<any, any>;
-}
+};
 
-const BackgroundView = styled(SafeAreaView)`
+const BackgroundView = styled.SafeAreaView`
   flex: 1;
   flex-grow: 1;
+  background-color: ${Color.BackgroundView.Background};
 `;
 
 const BackButtonWrapper = styled.View`
@@ -45,6 +46,19 @@ const Error = styled.Text`
   margin: 0 auto;
 `;
 
+const NoRidesView = styled.View`
+  flex: 1;
+  align-items: center;
+  margin: 0 auto;
+  width: 80%;
+  font-family: "SFPro-Regular";
+  margin-top: 10%;
+`;
+
+const NoRidesText = styled.Text`
+  font-size: 20px;
+`;
+
 export const YourRides: React.FC<YourRidesProps> = ({ navigation }) => {
   const onBackButtonClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -67,6 +81,15 @@ export const YourRides: React.FC<YourRidesProps> = ({ navigation }) => {
         </ActivityIndicatorWrapper>
       )}
       {!loading && !data && error && <Error>Please try again!</Error>}
+      {!loading &&
+        !error &&
+        data &&
+        data.getMyBookings &&
+        data.getMyBookings.length === 0 && (
+          <NoRidesView>
+            <NoRidesText>We are looking forward to ride with you!</NoRidesText>
+          </NoRidesView>
+        )}
 
       {data && data.getMyBookings && data.getMyBookings.length > 0 && (
         <FlatList

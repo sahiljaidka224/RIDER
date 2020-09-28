@@ -7,6 +7,7 @@ import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import { setToken } from "../../../auth";
 import styled from "styled-components/native";
+import { useOvermind } from "../../../overmind";
 
 type DrawerProps = {
   name: string;
@@ -76,7 +77,7 @@ const optionsList = [
   {
     title: "Settings",
     id: "3",
-    screen: "Settings",
+    screen: "EditAccount",
   },
 ];
 
@@ -87,11 +88,14 @@ export const DrawerComp: React.FC<Props> = (props) => {
     setToken("");
     props.navigation.replace("Main");
   };
+
+  const { state } = useOvermind();
+  const { userDetails } = state;
   return (
     <Container>
       <ImageWrapper source={Icons.driverDefault} resizeMode="contain" />
       <GreetingsWrapper>Hello</GreetingsWrapper>
-      <Name>Pedro</Name>
+      <Name>{userDetails?.fullName ? userDetails?.fullName : ''}</Name>
       <MenuWrapper>
         {optionsList.map((ol) => {
           const { title, id, screen } = ol;

@@ -5,6 +5,12 @@ export interface AddressData {
   location: Point;
 }
 
+export type UserDetails = {
+  fullName: string | undefined;
+  mobile: string | undefined;
+  email: string | undefined;
+};
+
 export enum ScreenState {
   INITIAL,
   ROUTES,
@@ -20,10 +26,12 @@ type State = {
   source: AddressData | undefined;
   destination: AddressData | undefined;
   bookingScreenState: ScreenState;
+  userDetails: UserDetails | undefined;
 };
 
 export const state: State = {
   source: undefined,
   destination: undefined,
   bookingScreenState: ScreenState.INITIAL,
+  userDetails: undefined,
 };

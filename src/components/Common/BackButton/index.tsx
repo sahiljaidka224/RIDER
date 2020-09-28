@@ -5,6 +5,7 @@ import styled from "styled-components/native";
 
 interface BackButtonProps {
   onClick: () => void;
+  source?: string;
 }
 
 const BackButtonWrapper = styled(TouchableOpacity)`
@@ -20,10 +21,10 @@ const BackButtonImage = styled(Image)`
   height: 14px;
 `;
 
-export const BackButton: React.FC<BackButtonProps> = ({ onClick }) => {
+export const BackButton: React.FC<BackButtonProps> = ({ onClick, source }) => {
   return (
     <BackButtonWrapper onPress={onClick}>
-      <BackButtonImage source={require("../../../../assets/BackButton.png")} />
+      <BackButtonImage source={source ? source : require("../../../../assets/BackButton.png")} />
     </BackButtonWrapper>
   );
 };
