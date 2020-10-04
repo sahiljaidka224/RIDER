@@ -1,9 +1,20 @@
 import * as Location from "expo-location";
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
 
-import { BOOKING_MUTATION, GET_NEARBY_DRIVERS } from "./queriesAndMutations";
-import { Dimensions, SafeAreaView, TouchableOpacity } from "react-native";
+import {
+  BOOKING_MUTATION,
+  GET_NEARBY_DRIVERS,
+  UPDATE_EXPO_PUSHTOKEN,
+} from "./queriesAndMutations";
+import {
+  Dimensions,
+  Platform,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/react-hooks";
 
 import { BookingView } from "./components/booking-view";
@@ -27,6 +38,10 @@ import { useOvermind } from "../../../overmind";
 interface BookingScreenProps {
   navigation: NavigationProp<any, any>;
 }
+
+type Subscription = {
+  remove: () => void;
+};
 
 export type Coords = { latitude: number; longitude: number };
 
@@ -113,15 +128,23 @@ const EditDest = styled.Image`
   margin-right: 3px;
 `;
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const { state, actions } = useOvermind();
   const { source, destination, bookingScreenState } = state;
-  const [bookingInProg, updateBookingInProgress] = React.useState<boolean>(
-    false
-  );
+  const [bookingInProg, updateBookingInProgress] = useState<boolean>(false);
 
   const [coords, updateCoords] = useState<[Coords]>();
-  const mapRef = React.useRef<MapView>(null);
+  const mapRef = useRef<MapView>(null);
+  const notificationListener = useRef<Subscription>();
+  const responseListener = useRef<Subscription>();
 
   const [getDrivers, { loading, data, error }] = useLazyQuery(
     GET_NEARBY_DRIVERS,
@@ -136,9 +159,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     getTripPrice,
     { loading: tripPriceLoading, error: tripPriceErr, data: tripPriceData },
   ] = useLazyQuery(GET_TRIPPRICE_BASEDON_LOCATION, {
-    onCompleted: (completedData) => {
-      console.log({ completedData });
-    },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: "network-only",
   });
@@ -153,65 +173,130 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     },
   });
 
+  const [updateExpoPushToken] = useMutation(UPDATE_EXPO_PUSHTOKEN);
+
   const updateRoute = (coordinates: [Coords] | undefined) => {
     updateCoords(coordinates);
   };
 
-  console.log({bookingScreenState, coords})
+  const getPushNotificationsPermissions = async () => {
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
+
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      alert(
+        "Please allow notification permissions from settings in order to take full advantage of the app."
+      );
+      return;
+    }
+
+    const pushToken = await Notifications.getExpoPushTokenAsync();
+
+    if (pushToken) {
+      updateExpoPushToken({
+        variables: {
+          pushToken: pushToken.data,
+          userType: "user",
+        },
+      });
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+  };
+
+  const getLocationPermissions = async () => {
+    const { status: existingStatus } = await Location.getPermissionsAsync();
+
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Location.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      alert(
+        "Please allow location permissions from settings in order to take full advantage of the app."
+      );
+      return;
+    }
+
+    await Location.getCurrentPositionAsync({
+      enableHighAccuracy: true,
+    }).then((locationData) => {
+      getDrivers({
+        variables: {
+          cords: [locationData.coords.longitude, locationData.coords.latitude],
+        },
+      });
+
+      if (mapRef && mapRef.current && locationData) {
+        mapRef.current?.animateToRegion({
+          latitude: locationData.coords.latitude ?? 0,
+          longitude: locationData.coords.longitude ?? 0,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      }
+
+      async function getAddress() {
+        const address = await getAddressFromLatLong(
+          locationData.coords.latitude,
+          locationData.coords.longitude
+        );
+
+        if (address && address.results && address.results.length > 0) {
+          const results = address.results[0];
+
+          if (!results) return;
+
+          let result = results.formatted_address;
+
+          const location: Point =
+            results.geometry && results.geometry.location
+              ? results.geometry.location
+              : undefined;
+
+          actions.updateSource({ readable: result, location });
+        }
+      }
+
+      if (!source) getAddress();
+    });
+  };
 
   React.useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
+    getPushNotificationsPermissions();
+    getLocationPermissions();
+
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log({ notification });
       }
-      await Location.getCurrentPositionAsync({
-        enableHighAccuracy: true,
-      }).then((locationData) => {
-        getDrivers({
-          variables: {
-            cords: [
-              locationData.coords.longitude,
-              locationData.coords.latitude,
-            ],
-          },
-        });
+    );
 
-        if (mapRef && mapRef.current && locationData) {
-          mapRef.current?.animateToRegion({
-            latitude: locationData.coords.latitude ?? 0,
-            longitude: locationData.coords.longitude ?? 0,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          });
-        }
-
-        async function getAddress() {
-          const address = await getAddressFromLatLong(
-            locationData.coords.latitude,
-            locationData.coords.longitude
-          );
-
-          if (address && address.results && address.results.length > 0) {
-            const results = address.results[0];
-
-            if (!results) return;
-
-            let result = results.formatted_address;
-
-            const location: Point =
-              results.geometry && results.geometry.location
-                ? results.geometry.location
-                : undefined;
-
-            actions.updateSource({ readable: result, location });
-          }
-        }
-
-        if (!source) getAddress();
-      });
-    })();
-
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log({ response });
+      }
+    );
     async function showPolyline() {
       if (!source?.location || !destination?.location) return;
       const coordinates = await getPolyline(
@@ -237,6 +322,15 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     }
 
     if (source && destination) showPolyline();
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current as Subscription
+      );
+      Notifications.removeNotificationSubscription(
+        responseListener.current as Subscription
+      );
+    };
   }, [source, destination]);
 
   const getTripPriceFromDb = () => {

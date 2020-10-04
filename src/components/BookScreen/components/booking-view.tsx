@@ -84,7 +84,7 @@ export const BookingView: React.FC<BookingViewProps> = ({
         <BackgroundView>
           <Loader
             onButtonPress={onCancel}
-            loadingText="Plese wait while we get our best drivers for you..."
+            loadingText="Please wait while we get our best drivers for you..."
             loading={updateBookingLoading}
           />
         </BackgroundView>

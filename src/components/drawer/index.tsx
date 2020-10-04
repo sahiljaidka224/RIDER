@@ -9,10 +9,6 @@ import { setToken } from "../../../auth";
 import styled from "styled-components/native";
 import { useOvermind } from "../../../overmind";
 
-type DrawerProps = {
-  name: string;
-};
-
 const Container = styled(SafeAreaView)`
   flex: 1;
 `;
@@ -72,7 +68,7 @@ const optionsList = [
   {
     title: "Payment",
     id: "2",
-    screen: "Payment",
+    screen: "PaymentsView",
   },
   {
     title: "Settings",
@@ -81,7 +77,7 @@ const optionsList = [
   },
 ];
 
-type Props = DrawerProps & NavigationProp<any, any>;
+type Props = NavigationProp<any, any>;
 
 export const DrawerComp: React.FC<Props> = (props) => {
   const onSignoutPress = () => {

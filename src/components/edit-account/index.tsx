@@ -83,7 +83,6 @@ export const EditAccount: React.FC<EditAccountProps> = ({ navigation }) => {
   );
 
   React.useEffect(() => {
-    console.log("here 1 ");
     if (!userDetails) {
       getDetails();
     }

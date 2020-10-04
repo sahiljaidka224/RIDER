@@ -1,3 +1,4 @@
+import { AddCardView } from "./src/components/payments/components/web-add-card";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
 import { BookingScreen } from "./src/components/BookScreen";
@@ -10,6 +11,7 @@ import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
 import { NavigationContainer } from "@react-navigation/native";
 import { OtpScreen } from "./src/components/Otp";
+import { PaymentsView } from "./src/components/payments";
 import { Provider } from "overmind-react";
 import React from "react";
 import { YourRides } from "./src/components/your-rides";
@@ -32,7 +34,7 @@ const Drawer = createDrawerNavigator();
 
 const MainStackScreen = () => {
   return (
-    <MainStack.Navigator>
+    <MainStack.Navigator initialRouteName="EntryScreen">
       <MainStack.Screen
         name="EntryScreen"
         component={EntryScreen}
@@ -61,9 +63,12 @@ const AuthedViews = () => {
   return (
     <Drawer.Navigator
       initialRouteName="BookingScreen"
-      drawerContent={(props) => <DrawerComp {...props} name="Pedro" />}
+      drawerContent={(props) => (
+        <DrawerComp {...props} options={{ headerShown: false }} />
+      )}
       hideStatusBar
     >
+      <MainStack.Screen name="Main" component={MainStackScreen} />
       <Drawer.Screen name="BookingScreen" component={BookingScreen} />
       <Drawer.Screen
         name="YourRides"
@@ -75,10 +80,10 @@ const AuthedViews = () => {
         component={EditAccount}
         options={{ gestureEnabled: false }}
       />
-      <RootStack.Screen
-        name="Main"
-        component={MainStackScreen}
-        options={{ headerShown: false }}
+      <Drawer.Screen
+        name="PaymentsView"
+        component={PaymentsView}
+        options={{ gestureEnabled: false, unmountOnBlur: true }}
       />
     </Drawer.Navigator>
   );
@@ -102,8 +107,6 @@ export default function App() {
   if (!isLoaded || !checkedSignedIn) {
     return <AppLoading />;
   }
-
-  console.log({ auth });
 
   return (
     <ApolloProvider client={client}>
@@ -134,6 +137,13 @@ export default function App() {
             <RootStack.Screen
               name="EditFieldScreen"
               component={EditFieldScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <RootStack.Screen
+              name="AddCardView"
+              component={AddCardView}
               options={{
                 headerShown: false,
               }}

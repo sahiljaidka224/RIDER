@@ -22,3 +22,17 @@ export const UPDATE_DETAILS = gql`
     }
   }
 `;
+
+export const ADD_CARD_MUTATION = gql`
+  mutation AddCardDetails($stripeCardToken: String!) {
+    addCard(stripeCardToken: $stripeCardToken)
+  }
+`;
+
+export const GET_MY_CARDS = gql`
+  query GetMyCards {
+    getMyCards {
+      lastFour
+    }
+  }
+`;
