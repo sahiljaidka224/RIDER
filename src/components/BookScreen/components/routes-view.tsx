@@ -1,4 +1,5 @@
 import { MutationFunction } from "@apollo/react-hooks";
+import { NextButton } from "../../Common/NextButton";
 import React from "react";
 import { RideView } from "../../ride-type";
 import styled from "styled-components/native";
@@ -14,6 +15,7 @@ interface RoutesViewProps {
   duration: string;
   distance: string;
   requestBooking: MutationFunction;
+  requestBookingLoading: boolean;
 }
 
 const TopHighlight = styled.View`
@@ -39,17 +41,48 @@ const HorizontalLine = styled.View<{ margin?: boolean }>`
   margin: ${(props) => (props.margin ? `14px auto` : "4px auto")};
 `;
 
+const NextButtonWrapper = styled.View`
+  width: 100%;
+  height: auto;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
 export const RoutesView: React.FC<RoutesViewProps> = ({
   options,
   distance,
   duration,
   requestBooking,
+  requestBookingLoading,
 }) => {
+  const [selectedOption, updateSelectedOption] = React.useState(
+    options && options.length > 0 ? options[0].type : undefined
+  );
   const { state } = useOvermind();
   const { source, destination } = state;
   const timeString = `Choose a trip ${
     duration ? `to get there in ${duration} mins` : ""
   }`;
+
+  const onNextButtonAction = () => {
+    if (!source || !destination || !selectedOption || !options) return;
+
+    const selectedType = options?.find((o) => o.type === selectedOption);
+
+    requestBooking({
+      variables: {
+        type: selectedOption ? selectedOption : "",
+        proposedFare: selectedType ? selectedType.price : "err",
+        sourceAddress: source.readable,
+        destAddress: destination.readable,
+        sourceLat: source.location.lat,
+        sourceLng: source.location.lng,
+        destLat: destination.location.lat,
+        destLng: destination.location.lng,
+      },
+    });
+  };
+
   return (
     <>
       <TopHighlight />
@@ -58,21 +91,10 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
         options.map((opt, index) => {
           const { type, price } = opt;
 
-          const onPress = () => {
-            if (!source || !destination) return;
-            requestBooking({
-              variables: {
-                type: type,
-                proposedFare: price,
-                sourceAddress: source.readable,
-                destAddress: destination.readable,
-                sourceLat: source.location.lat,
-                sourceLng: source.location.lng,
-                destLat: destination.location.lat,
-                destLng: destination.location.lng,
-              },
-            });
+          const onSelected = () => {
+            updateSelectedOption(type);
           };
+
           return (
             <React.Fragment key={index}>
               <RideView
@@ -80,7 +102,8 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
                 heading={type}
                 description="Affordable rides, all to yourself"
                 fare={price}
-                onPress={onPress}
+                onPress={onSelected}
+                selected={selectedOption === type}
               />
               {index + 1 !== options.length && (
                 <HorizontalLine key={`${index}-line`} />
@@ -88,6 +111,15 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
             </React.Fragment>
           );
         })}
+      {
+        <NextButtonWrapper>
+          <NextButton
+            onClick={onNextButtonAction}
+            isValid={true}
+            loading={requestBookingLoading}
+          />
+        </NextButtonWrapper>
+      }
     </>
   );
 };

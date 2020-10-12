@@ -281,8 +281,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   };
 
   React.useEffect(() => {
-    getPushNotificationsPermissions();
     getLocationPermissions();
+    getPushNotificationsPermissions();
 
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(
@@ -504,6 +504,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
                 tripPriceData.getTripPriceBasedOnLatLng.fare ?? undefined
               }
               requestBooking={requestBooking}
+              requestBookingLoading={bookingLoading}
             />
           )}
         {bookingReqData &&
