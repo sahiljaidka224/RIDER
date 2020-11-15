@@ -1,11 +1,6 @@
-import {
-  Image,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { SafeAreaView, TouchableOpacity } from "react-native";
 
+import { Icons } from "../../constants/icons";
 import { Loader } from "../Common/loader";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
@@ -23,17 +18,17 @@ const BackgroundView = styled(SafeAreaView)`
   align-items: center;
 `;
 
-const Wrapper = styled(View)`
+const Wrapper = styled.View`
   width: 100%;
   height: 60%;
 `;
 
-const WelcomeImage = styled(Image)`
+const WelcomeImage = styled.Image`
   flex: 1;
   width: 100%;
 `;
 
-const WelcomeWrapper = styled(View)`
+const WelcomeWrapper = styled.View`
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -43,27 +38,27 @@ const WelcomeWrapper = styled(View)`
   align-items: center;
 `;
 
-const WelcomeTo = styled(Text)`
+const WelcomeTo = styled.Text`
   color: #0e1823;
   font-family: "SFPro-Regular";
   font-size: 22px;
   margin-right: 6px;
 `;
 
-const NameWrapper = styled(Image)`
+const NameWrapper = styled.Image`
   height: 52px;
   width: 68px;
   margin-top: 5px;
 `;
 
-export const HorizontalLine = styled(View)`
+export const HorizontalLine = styled.View`
   height: 1.5px;
   background-color: #eeeeee;
   width: 90%;
   margin: 0 auto;
 `;
 
-export const PhoneWrapper = styled(View)`
+export const PhoneWrapper = styled.View`
   display: flex;
   flex-direction: row;
   margin-bottom: 25px;
@@ -73,7 +68,7 @@ export const PhoneWrapper = styled(View)`
   align-items: center;
 `;
 
-export const CountryCode = styled(Text)`
+export const CountryCode = styled.Text`
   font-family: "SFPro-Regular";
   font-size: 24px;
   color: #000000;
@@ -85,7 +80,7 @@ export const PhoneNumberClickable = styled(TouchableOpacity)`
   justify-content: center;
 `;
 
-export const PhoneNumber = styled(Text)`
+export const PhoneNumber = styled.Text`
   font-family: "SFPro-Regular";
   font-size: 18px;
   color: #000000;
@@ -93,23 +88,28 @@ export const PhoneNumber = styled(Text)`
   margin-left: 6px;
 `;
 
-const SocialMediaWrapper = styled(View)`
+const SocialMediaWrapper = styled.View`
   flex: 1;
   justify-content: center;
 `;
 
-const SocialMediaText = styled(Text)`
+const SocialMediaText = styled.Text`
   color: #2ecb70;
   font-size: 17px;
   font-family: "SFPro-Regular";
 `;
 
-export const FlagWrapper = styled(View)`
+export const FlagWrapper = styled.View`
   width: 40px;
   height: 40px;
   border-radius: 20px;
   background-color: black;
   margin-right: 17px;
+`;
+
+export const FlagIcon = styled.Image`
+  width: 40px;
+  height: 40px;
 `;
 
 export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
@@ -132,7 +132,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
         />
       </Wrapper>
       <PhoneWrapper>
-        <FlagWrapper />
+        <FlagWrapper><FlagIcon source={Icons.ausFlagRound} resizeMode="contain"/></FlagWrapper>
         <CountryCode>+61</CountryCode>
         <PhoneNumberClickable onPress={onPhoneNumberClick}>
           <PhoneNumber>474 430 303</PhoneNumber>

@@ -82,7 +82,9 @@ type Props = NavigationProp<any, any>;
 export const DrawerComp: React.FC<Props> = (props) => {
   const onSignoutPress = () => {
     setToken("");
-    props.navigation.replace("Main");
+    try {
+      props.navigation.replace("Main");
+    } catch (err) {}
   };
 
   const { state } = useOvermind();
@@ -91,7 +93,7 @@ export const DrawerComp: React.FC<Props> = (props) => {
     <Container>
       <ImageWrapper source={Icons.driverDefault} resizeMode="contain" />
       <GreetingsWrapper>Hello</GreetingsWrapper>
-      <Name>{userDetails?.fullName ? userDetails?.fullName : ''}</Name>
+      <Name>{userDetails?.fullName ? userDetails?.fullName : ""}</Name>
       <MenuWrapper>
         {optionsList.map((ol) => {
           const { title, id, screen } = ol;

@@ -7,4 +7,5 @@ export const Icons = {
   call: require("../../../assets/Call.png"),
   destCar: require("../../../assets/DestCar.png"),
   edit: require("../../../assets/Edit.png"),
+  ausFlagRound: require("../../../assets/AustraliaFlagRound.png"),
 };

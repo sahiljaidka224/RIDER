@@ -4,6 +4,7 @@ import * as Permissions from "expo-permissions";
 
 import {
   BOOKING_MUTATION,
+  GET_BOOKING_INPROGRESS,
   GET_NEARBY_DRIVERS,
   UPDATE_EXPO_PUSHTOKEN,
 } from "./queriesAndMutations";
@@ -15,7 +16,7 @@ import {
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 import React, { useRef, useState } from "react";
-import { useLazyQuery, useMutation } from "@apollo/react-hooks";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
 
 import { BookingView } from "./components/booking-view";
 import { Color } from "../../constants/Theme";
@@ -146,6 +147,25 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
 
+//   const { data: bookingInProgData, loading: bookingInProgLoading } = useQuery(
+//     GET_BOOKING_INPROGRESS,
+//     {
+//       onCompleted: (completedData) => {
+//         console.log({ completedData });
+//         if (completedData && completedData.getBookingInProgress) {
+//           const {
+//             status,
+//             sourceLatLng,
+//             destLatLng,
+//             source,
+//             destAddress,
+//           } = completedData.getBookingInProgress;
+//           updateBookingInProgress(true);
+//         }
+//       },
+//     }
+//   );
+
   const [getDrivers, { loading, data, error }] = useLazyQuery(
     GET_NEARBY_DRIVERS,
     {
@@ -239,11 +259,16 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     await Location.getCurrentPositionAsync({
       enableHighAccuracy: true,
     }).then((locationData) => {
-      getDrivers({
-        variables: {
-          cords: [locationData.coords.longitude, locationData.coords.latitude],
-        },
-      });
+      if (!bookingInProg && !bookingReqData) {
+        getDrivers({
+          variables: {
+            cords: [
+              locationData.coords.longitude,
+              locationData.coords.latitude,
+            ],
+          },
+        });
+      }
 
       if (mapRef && mapRef.current && locationData) {
         mapRef.current?.animateToRegion({
@@ -503,6 +528,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               options={
                 tripPriceData.getTripPriceBasedOnLatLng.fare ?? undefined
               }
+              isBookingActive={tripPriceData.getTripPriceBasedOnLatLng.isBookingActive ?? false}
               requestBooking={requestBooking}
               requestBookingLoading={bookingLoading}
             />
@@ -516,6 +542,15 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               updateRoute={updateRoute}
             />
           )}
+        {/* {bookingInProgData &&
+          bookingInProgData.createBooking &&
+          bookingReqData.createBooking.id &&
+          bookingInProg && (
+            <BookingView
+              bookingId={bookingReqData.createBooking.id}
+              updateRoute={updateRoute}
+            />
+          )} */}
       </WhereToWrapper>
       <StatusBar style="auto" />
     </BackgroundView>

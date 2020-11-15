@@ -82,3 +82,25 @@ export const UPDATE_EXPO_PUSHTOKEN = gql`
     registerExpoPushToken(pushToken: $pushToken, userType: $userType)
   }
 `;
+
+export const GET_BOOKING_INPROGRESS = gql`
+  query GetBookingInProgress {
+    getBookingInProgress {
+      bookingId
+      driverId
+      email
+      sourceLatLng {
+        lat
+        lng
+      }
+      destLatLng {
+        lat
+        lng
+      }
+      status
+      source
+      destAddress
+      type
+    }
+  }
+`;

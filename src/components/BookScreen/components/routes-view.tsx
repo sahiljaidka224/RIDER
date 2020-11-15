@@ -16,6 +16,7 @@ interface RoutesViewProps {
   distance: string;
   requestBooking: MutationFunction;
   requestBookingLoading: boolean;
+  isBookingActive?: boolean;
 }
 
 const TopHighlight = styled.View`
@@ -45,7 +46,7 @@ const NextButtonWrapper = styled.View`
   width: 100%;
   height: auto;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 `;
 
 export const RoutesView: React.FC<RoutesViewProps> = ({
@@ -54,6 +55,7 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
   duration,
   requestBooking,
   requestBookingLoading,
+  isBookingActive,
 }) => {
   const [selectedOption, updateSelectedOption] = React.useState(
     options && options.length > 0 ? options[0].type : undefined
@@ -65,6 +67,13 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
   }`;
 
   const onNextButtonAction = () => {
+    if (!isBookingActive) {
+      alert(
+        "🤙🏽 Thanks for taking out time and trying our app. Launching this Christmas!🎄🎅"
+      );
+      return;
+    }
+
     if (!source || !destination || !selectedOption || !options) return;
 
     const selectedType = options?.find((o) => o.type === selectedOption);

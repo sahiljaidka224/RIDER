@@ -1,5 +1,6 @@
 import {
   CountryCode,
+  FlagIcon,
   FlagWrapper,
   HorizontalLine,
   PhoneWrapper,
@@ -8,13 +9,12 @@ import {
   NativeSyntheticEvent,
   Platform,
   SafeAreaView,
-  Text,
   TextInput,
   TextInputChangeEventData,
-  View,
 } from "react-native";
 
 import { BackButton } from "../Common/BackButton/index";
+import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
@@ -33,7 +33,7 @@ const SafeAreaWrapper = styled(SafeAreaView)`
   display: flex;
 `;
 
-export const EnterMobileNumberText = styled(Text)`
+export const EnterMobileNumberText = styled.Text`
   font-size: 21px;
   color: #0e1823;
   font-family: "SFPro-Regular";
@@ -48,7 +48,7 @@ const PhoneNumberInput = styled(TextInput)`
   color: #000000;
 `;
 
-export const NextButtonWrapper = styled(View)`
+export const NextButtonWrapper = styled.View`
   align-items: center;
   width: ${iphone6OrGreater() ? "84%" : "80%"};
   justify-content: space-between;
@@ -57,31 +57,31 @@ export const NextButtonWrapper = styled(View)`
   flex-direction: row;
 `;
 
-export const ByContinuingText = styled(Text)`
+export const ByContinuingText = styled.Text`
   font-size: 16px;
   font-family: "SFPro-Regular";
   margin: 0 20px;
   width: 80%;
 `;
 
-const Container = styled(View)`
+const Container = styled.View`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 `;
 
-const ContainerNumber = styled(View)`
+const ContainerNumber = styled.View`
   flex: 1;
 `;
 
-const ContainerButton = styled(View)`
+const ContainerButton = styled.View`
   flex: 1;
   align-items: flex-start;
   padding: 10px;
 `;
 
-const Error = styled(Text)`
+const Error = styled.Text`
   font-size: 14px;
   font-family: "SFPro-Regular";
   color: red;
@@ -142,7 +142,9 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
             Enter your mobile number
           </EnterMobileNumberText>
           <PhoneWrapper>
-            <FlagWrapper />
+            <FlagWrapper>
+              <FlagIcon source={Icons.ausFlagRound} resizeMode="contain" />
+            </FlagWrapper>
             <CountryCode>+61</CountryCode>
             <PhoneNumberInput
               multiline={false}

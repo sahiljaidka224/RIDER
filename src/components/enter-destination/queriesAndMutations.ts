@@ -17,6 +17,7 @@ export const GET_TRIPPRICE_BASEDON_LOCATION = gql`
         type
         price
       }
+      isBookingActive
     }
   }
 `;

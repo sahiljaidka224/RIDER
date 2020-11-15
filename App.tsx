@@ -5,7 +5,6 @@ import { BookingScreen } from "./src/components/BookScreen";
 import { DrawerComp } from "./src/components/drawer";
 import { EditAccount } from "./src/components/edit-account";
 import { EditFieldScreen } from "./src/components/edit-account/components/edit-detail";
-// import { EnableNotifications } from "./src/components/EnableNotification";
 import { EnterDestinationScreen } from "./src/components/enter-destination";
 import { EnterPhoneNumber } from "./src/components/EnterPhoneNumber";
 import { EntryScreen } from "./src/components/EntryPoint";
@@ -94,7 +93,7 @@ export default function App() {
   const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
   const signedIn = isSignedIn()
     .then((res) => {
-      updateAuth(res);
+      updateAuth(res as boolean);
       updateCheckedSignedIn(true);
     })
     .catch((err) => alert("An error occurred"));
