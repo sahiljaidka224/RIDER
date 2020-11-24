@@ -156,6 +156,7 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
               value={value}
               onChange={onChange}
               maxLength={11}
+              textContentType="none"
             />
           </PhoneWrapper>
           <HorizontalLine />

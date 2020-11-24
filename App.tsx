@@ -1,3 +1,7 @@
+import * as Location from "expo-location";
+
+import React, { useEffect } from "react";
+
 import { AddCardView } from "./src/components/payments/components/web-add-card";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { AppLoading } from "expo";
@@ -12,7 +16,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { OtpScreen } from "./src/components/Otp";
 import { PaymentsView } from "./src/components/payments";
 import { Provider } from "overmind-react";
-import React from "react";
 import { YourRides } from "./src/components/your-rides";
 import client from "./client";
 import { config } from "./overmind";
@@ -91,6 +94,28 @@ const AuthedViews = () => {
 export default function App() {
   const [auth, updateAuth] = React.useState(false);
   const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
+
+  const getLocationPermission = async () => {
+    const { status: existingStatus } = await Location.getPermissionsAsync();
+
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Location.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      alert(
+        "Please allow location permissions from settings in order to take full advantage of the app."
+      );
+      return;
+    }
+  };
+
+  useEffect(() => {
+    getLocationPermission();
+  });
   const signedIn = isSignedIn()
     .then((res) => {
       updateAuth(res as boolean);

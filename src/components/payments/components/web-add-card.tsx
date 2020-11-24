@@ -114,8 +114,6 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
 
     const { cvc, expiry, name, number } = values;
 
-    console.log({ expiry });
-
     const expiryArr = expiry.split("/");
 
     if (!expiryArr || expiryArr.length < 1) return;
@@ -130,7 +128,6 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
     };
     var card = await stripe.createToken(information);
     var token = card.id;
-    console.log({ card, token });
 
     addCard({
       variables: {

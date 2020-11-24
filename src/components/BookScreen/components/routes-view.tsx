@@ -1,3 +1,4 @@
+import { Icons } from "../../../constants/icons";
 import { MutationFunction } from "@apollo/react-hooks";
 import { NextButton } from "../../Common/NextButton";
 import React from "react";
@@ -109,10 +110,15 @@ export const RoutesView: React.FC<RoutesViewProps> = ({
               <RideView
                 key={index}
                 heading={type}
-                description="Affordable rides, all to yourself"
+                description={
+                  type === "RIDE"
+                    ? "Affordable rides, all to yourself"
+                    : "Deleveries made easy!"
+                }
                 fare={price}
                 onPress={onSelected}
                 selected={selectedOption === type}
+                icon={type === "DELIVERY" ? Icons.deliveryIcon : Icons.carIcon}
               />
               {index + 1 !== options.length && (
                 <HorizontalLine key={`${index}-line`} />

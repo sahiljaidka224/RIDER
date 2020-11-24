@@ -50,7 +50,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
       ) : (
         <ImageWrapper
           source={source ? source : Icons.drawer}
-          resizeMode="center"
+          resizeMode="contain"
         />
       )}
     </BackgroundView>

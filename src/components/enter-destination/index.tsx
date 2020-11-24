@@ -3,13 +3,9 @@ import { NavigationProp, RouteProp } from "@react-navigation/native";
 
 import { AddressAutocomplete } from "../google-places-autocomplete";
 import { BackButton } from "../Common/BackButton";
-import { Color } from "../../constants/Theme";
-import { GET_TRIPPRICE_BASEDON_LOCATION } from "./queriesAndMutations";
 import { Point } from "react-native-google-places-autocomplete";
 import React from "react";
-import { RideView } from "../ride-type";
 import styled from "styled-components/native";
-import { useLazyQuery } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
 
 interface EnterDestinationProps {
@@ -77,18 +73,9 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
   const { source, destination } = state;
 
   const [rotateAnim, updateRotateAnim] = React.useState(new Animated.Value(0));
-  const [getTripPrice, { loading, error, data }] = useLazyQuery(
-    GET_TRIPPRICE_BASEDON_LOCATION,
-    {
-      onCompleted: (completedData) => {
-        console.log({ completedData });
-      },
-    }
-  );
 
   React.useEffect(() => {
     if (source && destination) {
-      //   getTripPriceFromDb();
     }
   }, [source, destination]);
 
@@ -105,30 +92,6 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
   const updateDestinationAdd = (data: AddressData) => {
     actions.updateDestination(data);
     onBackButton();
-  };
-
-  const getTripPriceFromDb = () => {
-    if (!source || !destination) return console.log("No source or dest");
-
-    if (!source.location || !source.location.lat || !source.location.lng)
-      return console.log("No source data");
-
-    if (
-      !destination.location ||
-      !destination.location.lat ||
-      !destination.location.lng
-    )
-      return console.log("No dest data");
-    //TODO: show error;
-
-    getTripPrice({
-      variables: {
-        sourceLat: source.location.lat,
-        sourceLng: source.location.lng,
-        destinationLat: destination.location.lat,
-        destinationLng: destination.location.lng,
-      },
-    });
   };
 
   Animated.timing(rotateAnim, {
@@ -179,8 +142,6 @@ export const EnterDestinationScreen: React.FC<EnterDestinationProps> = ({
           />
         </TextViewWrapper>
       </DestinationViewWrapper>
-      {loading && <ActivityIndicator size="small" />}
-      {/* {data && <RideView />} */}
     </Wrapper>
   );
 };

@@ -8,4 +8,6 @@ export const Icons = {
   destCar: require("../../../assets/DestCar.png"),
   edit: require("../../../assets/Edit.png"),
   ausFlagRound: require("../../../assets/AustraliaFlagRound.png"),
+  deliveryIcon: require("../../../assets/deliveryIcon.png"),
+  carIcon: require("../../../assets/Car.png")
 };

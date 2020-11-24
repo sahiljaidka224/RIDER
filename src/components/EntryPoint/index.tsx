@@ -46,8 +46,8 @@ const WelcomeTo = styled.Text`
 `;
 
 const NameWrapper = styled.Image`
-  height: 52px;
-  width: 68px;
+  height: 55px;
+  width: 75px;
   margin-top: 5px;
 `;
 
@@ -124,6 +124,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
           {/* <WelcomeTo>Let's</WelcomeTo> */}
           <NameWrapper
             source={require("../../../assets/WelcomeScreenLogo.png")}
+            resizeMode="contain"
           />
         </WelcomeWrapper>
         <WelcomeImage
@@ -132,7 +133,9 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
         />
       </Wrapper>
       <PhoneWrapper>
-        <FlagWrapper><FlagIcon source={Icons.ausFlagRound} resizeMode="contain"/></FlagWrapper>
+        <FlagWrapper>
+          <FlagIcon source={Icons.ausFlagRound} resizeMode="contain" />
+        </FlagWrapper>
         <CountryCode>+61</CountryCode>
         <PhoneNumberClickable onPress={onPhoneNumberClick}>
           <PhoneNumber>474 430 303</PhoneNumber>
@@ -144,7 +147,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ navigation }) => {
           By signing up you agree to our privacy policy
         </SocialMediaText>
       </SocialMediaWrapper>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
     </BackgroundView>
   );
 };

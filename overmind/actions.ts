@@ -2,7 +2,7 @@ import { AddressData, ScreenState, UserDetails } from "./state";
 
 import { Action } from "overmind";
 
-export const updateSource: Action<AddressData> = ({ state }, address) => {
+export const updateSource: Action<AddressData | undefined> = ({ state }, address) => {
   state.source = address;
 };
 
@@ -20,7 +20,7 @@ export const updateBookingScreenState: Action<ScreenState> = (
   state.bookingScreenState = screenState;
 };
 
-export const updateUserDetails: Action<UserDetails> = (
+export const updateUserDetails: Action<UserDetails | undefined> = (
   { state },
   userDetails
 ) => {

@@ -100,7 +100,6 @@ export const EditFieldScreen: React.FC<EditFieldProps> = ({
 
   const onUpdate = () => {
     if (value && value !== "" && value.trim() !== "") {
-      console.log({ value });
       const variables =
         label === "Full Name" ? { fullName: value } : { email: value };
       updateDetails({

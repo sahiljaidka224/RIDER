@@ -1,6 +1,6 @@
 import { EnterMobileNumberText, NextButtonWrapper } from "../EnterPhoneNumber";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { Platform, SafeAreaView, Text, TextInput, View } from "react-native";
+import { Platform, SafeAreaView, View } from "react-native";
 import { RESEND_OTP, VERIFY_OTP } from "./queriesAndMutations";
 
 import { BackButton } from "../Common/BackButton";
@@ -23,7 +23,7 @@ const BackgroundView = styled(SafeAreaView)`
   display: flex;
 `;
 
-const OtpWrapper = styled(View)`
+const OtpWrapper = styled.View`
   width: 100%;
   height: 60px;
   margin-top: 20%;
@@ -35,7 +35,7 @@ const OtpWrapper = styled(View)`
   margin-right: 10px;
 `;
 
-const InputWrapper = styled(View)`
+const InputWrapper = styled.View`
   height: 50px;
   width: 50px;
   background-color: #f5f5f5;
@@ -45,31 +45,31 @@ const InputWrapper = styled(View)`
   border-bottom-color: #2ecb70;
 `;
 
-const OtpTextInput = styled(TextInput)`
+const OtpTextInput = styled.TextInput`
   height: 100%;
   width: 100%;
   font-size: 22px;
   padding-left: 35%;
 `;
 
-const Container = styled(View)`
+const Container = styled.View`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 `;
 
-const ContainerNumber = styled(View)`
+const ContainerNumber = styled.View`
   flex: 1;
 `;
 
-const ContainerButton = styled(View)`
+const ContainerButton = styled.View`
   flex: 1;
   align-items: flex-start;
   padding: 10px;
 `;
 
-const Error = styled(Text)`
+const Error = styled.Text`
   font-size: 14px;
   font-family: "SFPro-Regular";
   color: red;
@@ -86,13 +86,13 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
   const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
     onCompleted: async ({ verifyOtp }) => {
       if (verifyOtp) {
-        const { token, fullName, email, mobile } = verifyOtp;
+        const { token, fullName, email, mobile, userId } = verifyOtp;
 
         if (fullName || email || mobile) {
           actions.updateUserDetails({ fullName, email, mobile });
         }
 
-        if (token) {
+        if (token && userId && userId === id) {
           setToken(token);
           navigation.navigate("BookingScreen");
         }
@@ -129,6 +129,7 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
             {[0, 1, 2, 3].map((_elem, index) => (
               <InputWrapper key={`${index}-${Math.random()}`}>
                 <OtpTextInput
+                  textContentType="none"
                   key={`${index}-${Math.random()}`}
                   maxLength={1}
                   value={otp[index] ? otp[index] : ""}

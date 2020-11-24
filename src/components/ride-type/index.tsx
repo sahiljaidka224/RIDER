@@ -1,5 +1,6 @@
 import { Color } from "../../constants/Theme";
 import { Feather } from "@expo/vector-icons";
+import { Icons } from "../../constants/icons";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
@@ -9,6 +10,7 @@ interface RideTypeProps {
   description?: string;
   onPress: () => void;
   selected: boolean;
+  icon?: string;
 }
 
 const BackgroundView = styled(TouchableOpacity)`
@@ -22,8 +24,8 @@ const BackgroundView = styled(TouchableOpacity)`
 `;
 
 const CarWrapper = styled.Image`
-  height: 85px;
-  width: 90px;
+  height: 80px;
+  width: 88px;
   border-radius: 20px;
 `;
 
@@ -79,16 +81,14 @@ export const RideView: React.FC<RideTypeProps> = ({
   description,
   onPress,
   selected,
+  icon,
 }) => {
   return (
     <BackgroundView onPress={onPress} activeOpacity={1}>
       <FeatherIconWrapper selected={selected}>
         <Feather name="check" color="#fff" size={14} />
       </FeatherIconWrapper>
-      <CarWrapper
-        source={require("../../../assets/Car.png")}
-        resizeMode="center"
-      />
+      <CarWrapper source={icon ? icon : Icons.carIcon} resizeMode="contain" />
       <TextWrapper>
         <HeadingText>{heading}</HeadingText>
         <DescText>{description}</DescText>

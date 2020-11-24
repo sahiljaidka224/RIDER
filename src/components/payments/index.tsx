@@ -71,8 +71,6 @@ export const PaymentsView: React.FC<PaymentScreenProps> = ({ navigation }) => {
     navigation.navigate("AddCardView");
   };
 
-  console.log({ data });
-
   return (
     <SafeAreaWrapper>
       <BackButtonWrapper>

@@ -8,9 +8,8 @@ import { setContext } from "@apollo/client/link/context";
 import { split } from "apollo-link";
 
 const httpLink = createUploadLink({
-  uri: 
-  __DEV__
-    ? "http://192.168.0.45:4000/graphql"
+  uri: __DEV__
+    ? "http://192.168.0.46:4000/graphql"
     : "https://rider-driver-backend.herokuapp.com/graphql",
 });
 
@@ -31,7 +30,7 @@ const authorizedLink = authLink.concat(httpLink as any);
 
 const wsLink = new WebSocketLink({
   uri: __DEV__
-    ? `ws://192.168.0.45:4000/graphql`
+    ? `ws://192.168.0.46:4000/graphql`
     : `ws://rider-driver-backend.herokuapp.com/graphql`,
   options: {
     reconnect: true,

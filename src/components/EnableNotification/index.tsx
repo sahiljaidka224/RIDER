@@ -52,7 +52,7 @@ export const EnableNotifications = () => {
       <NotificationWrapper>
         <NotificationIcon
           source={require("../../../assets/NotificationIcon.png")}
-          resizeMode="center"
+          resizeMode="contain"
         />
         <TextWrapper>
           <TextBegin>Relax with real-time</TextBegin>

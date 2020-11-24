@@ -64,7 +64,7 @@ export const BookingView: React.FC<BookingViewProps> = ({
     updateBooking,
     { loading: updateBookingLoading, error: updateBookingError },
   ] = useMutation(UPDATE_BOOKING_MUTATION, {
-    onCompleted: ({ bookingUpdated }) => {
+    onCompleted: () => {
       updateRoute(undefined);
       actions.updateBookingScreenState(ScreenState.INITIAL);
     },

@@ -23,6 +23,7 @@ import { Color } from "../../constants/Theme";
 import { GET_TRIPPRICE_BASEDON_LOCATION } from "../enter-destination/queriesAndMutations";
 import { Icons } from "../../constants/icons";
 import { InitalView } from "./components/initial-view";
+import { LocationAccuracy } from "expo-location";
 import { MenuButton } from "../Common/MenuButton";
 import { NavigationProp } from "@react-navigation/native";
 import { Point } from "react-native-google-places-autocomplete";
@@ -59,7 +60,6 @@ const MenuButtonWrapper = styled.View`
 const Map = styled(MapView)`
   width: ${Dimensions.get("window").width}px;
   height: ${Dimensions.get("window").height}px;
-  flex: 1;
   position: absolute;
 `;
 
@@ -147,24 +147,24 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
 
-//   const { data: bookingInProgData, loading: bookingInProgLoading } = useQuery(
-//     GET_BOOKING_INPROGRESS,
-//     {
-//       onCompleted: (completedData) => {
-//         console.log({ completedData });
-//         if (completedData && completedData.getBookingInProgress) {
-//           const {
-//             status,
-//             sourceLatLng,
-//             destLatLng,
-//             source,
-//             destAddress,
-//           } = completedData.getBookingInProgress;
-//           updateBookingInProgress(true);
-//         }
-//       },
-//     }
-//   );
+  //   const { data: bookingInProgData, loading: bookingInProgLoading } = useQuery(
+  //     GET_BOOKING_INPROGRESS,
+  //     {
+  //       onCompleted: (completedData) => {
+  //         console.log({ completedData });
+  //         if (completedData && completedData.getBookingInProgress) {
+  //           const {
+  //             status,
+  //             sourceLatLng,
+  //             destLatLng,
+  //             source,
+  //             destAddress,
+  //           } = completedData.getBookingInProgress;
+  //           updateBookingInProgress(true);
+  //         }
+  //       },
+  //     }
+  //   );
 
   const [getDrivers, { loading, data, error }] = useLazyQuery(
     GET_NEARBY_DRIVERS,
@@ -242,23 +242,32 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const getLocationPermissions = async () => {
     const { status: existingStatus } = await Location.getPermissionsAsync();
 
-    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') return;
+    // let finalStatus = existingStatus;
 
-    if (existingStatus !== "granted") {
-      const { status } = await Location.requestPermissionsAsync();
-      finalStatus = status;
-    }
+    // if (existingStatus !== "granted") {
+    //   const { status } = await Location.requestPermissionsAsync();
+    //   finalStatus = status;
+    // }
 
-    if (finalStatus !== "granted") {
-      alert(
-        "Please allow location permissions from settings in order to take full advantage of the app."
-      );
-      return;
-    }
+    // if (finalStatus !== "granted") {
+    //   alert(
+    //     "Please allow location permissions from settings in order to take full advantage of the app."
+    //   );
+    //   return;
+    // }
 
     await Location.getCurrentPositionAsync({
-      enableHighAccuracy: true,
+      accuracy: LocationAccuracy.Highest,
     }).then((locationData) => {
+      if (mapRef && mapRef.current && locationData) {
+        mapRef.current?.animateToRegion({
+          latitude: locationData.coords.latitude ?? 0,
+          longitude: locationData.coords.longitude ?? 0,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      }
       if (!bookingInProg && !bookingReqData) {
         getDrivers({
           variables: {
@@ -267,15 +276,6 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               locationData.coords.latitude,
             ],
           },
-        });
-      }
-
-      if (mapRef && mapRef.current && locationData) {
-        mapRef.current?.animateToRegion({
-          latitude: locationData.coords.latitude ?? 0,
-          longitude: locationData.coords.longitude ?? 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
         });
       }
 
@@ -312,14 +312,14 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
-        console.log({ notification });
+        // console.log({ notification });
       }
     );
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        console.log({ response });
+        // console.log({ response });
       }
     );
     async function showPolyline() {
@@ -335,10 +335,10 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
       if (mapRef && coordinates && coordinates.length > 1) {
         mapRef.current?.fitToCoordinates(coordinates, {
           edgePadding: {
-            top: 20,
-            right: 20,
-            bottom: 250,
-            left: 20,
+            top: 80,
+            right: 80,
+            bottom: 350,
+            left: 100,
           },
           animated: true,
         });
@@ -359,17 +359,17 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   }, [source, destination]);
 
   const getTripPriceFromDb = () => {
-    if (!source || !destination) return console.log("No source or dest");
+    if (!source || !destination) return;
 
     if (!source.location || !source.location.lat || !source.location.lng)
-      return console.log("No source data");
+      return;
 
     if (
       !destination.location ||
       !destination.location.lat ||
       !destination.location.lng
     )
-      return console.log("No dest data");
+      return;
     //TODO: show error;
     getTripPrice({
       variables: {
@@ -404,6 +404,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         showsUserLocation={true}
         ref={mapRef}
         zoomEnabled={true}
+        
       >
         {(bookingScreenState === ScreenState.INITIAL ||
           bookingScreenState === ScreenState.ROUTES) &&
@@ -528,7 +529,9 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               options={
                 tripPriceData.getTripPriceBasedOnLatLng.fare ?? undefined
               }
-              isBookingActive={tripPriceData.getTripPriceBasedOnLatLng.isBookingActive ?? false}
+              isBookingActive={
+                tripPriceData.getTripPriceBasedOnLatLng.isBookingActive ?? false
+              }
               requestBooking={requestBooking}
               requestBookingLoading={bookingLoading}
             />
@@ -552,7 +555,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
             />
           )} */}
       </WhereToWrapper>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
     </BackgroundView>
   );
 };

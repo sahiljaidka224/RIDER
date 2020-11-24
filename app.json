@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hopinn",
     "slug": "hopin-rider",
-    "version": "1.0.0",
+    "version": "0.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -33,6 +33,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "sdkVersion": "39.0.0",
+    "platforms": [
+      "android",
+      "ios"
+    ]
   }
 }

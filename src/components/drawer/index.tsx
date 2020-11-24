@@ -80,15 +80,17 @@ const optionsList = [
 type Props = NavigationProp<any, any>;
 
 export const DrawerComp: React.FC<Props> = (props) => {
+  const { state, actions } = useOvermind();
+  const { userDetails } = state;
+
   const onSignoutPress = () => {
     setToken("");
+    actions.updateUserDetails(undefined);
     try {
       props.navigation.replace("Main");
     } catch (err) {}
   };
 
-  const { state } = useOvermind();
-  const { userDetails } = state;
   return (
     <Container>
       <ImageWrapper source={Icons.driverDefault} resizeMode="contain" />
