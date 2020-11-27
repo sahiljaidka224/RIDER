@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hopinn",
     "slug": "hopin-rider",
-    "version": "0.0.2",
+    "version": "0.0.21",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -21,6 +21,9 @@
       "bundleIdentifier": "com.company.hopinnRider",
       "config": {
         "googleMapsApiKey": "AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY"
+      },
+      "infoPlist": {
+          "NSLocationUsageDescription": "Hopinn collects location data to make sure a faultless and express ride."
       }
     },
     "android": {
