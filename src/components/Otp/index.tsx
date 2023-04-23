@@ -1,6 +1,6 @@
 import { EnterMobileNumberText, NextButtonWrapper } from "../EnterPhoneNumber";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { Platform, SafeAreaView, View } from "react-native";
+import { Platform, SafeAreaView } from "react-native";
 import { RESEND_OTP, VERIFY_OTP } from "./queriesAndMutations";
 
 import { BackButton } from "../Common/BackButton";
@@ -107,6 +107,7 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
   };
 
   const onNextButtonClick = () => {
+    navigation.navigate("BookingScreen");
     if (otp.length < 4) return;
 
     const otpToVerify = otp.toString().replaceAll(",", "");

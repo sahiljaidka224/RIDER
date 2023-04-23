@@ -129,8 +129,12 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
 
   const onNextButtonClick = async () => {
     if (value.replace(/ /g, "").length !== 9) return;
+    navigation.navigate("OtpScreen", {
+      number: value,
+      id: "completedData.createUser._id", // TODO: fix this
+    });
 
-    await signUp({ variables: { mobNumber: value.replace(/ /g, "") } });
+    // await signUp({ variables: { mobNumber: value.replace(/ /g, "") } });
   };
 
   return (
