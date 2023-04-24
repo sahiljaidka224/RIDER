@@ -1,10 +1,9 @@
 import * as Location from "expo-location";
 
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import { AddCardView } from "./src/components/payments/components/web-add-card";
 import { ApolloProvider } from "@apollo/react-hooks";
-import { AppLoading } from "expo";
 import { BookingScreen } from "./src/components/BookScreen";
 import { DrawerComp } from "./src/components/drawer";
 import { EditAccount } from "./src/components/edit-account";
@@ -24,6 +23,8 @@ import { createOvermind } from "overmind";
 import { createStackNavigator } from "@react-navigation/stack";
 import { isSignedIn } from "./auth";
 import { useFonts } from "@use-expo/font";
+import AppLoading from "expo-app-loading";
+import * as SplashScreen from "expo-splash-screen";
 
 const overmind = createOvermind(config, {
   devtools: "192.168.0.46:3031",
@@ -92,6 +93,19 @@ const AuthedViews = () => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
+    "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  onLayoutRootView();
+
   const [auth, updateAuth] = React.useState(false);
   const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
 
@@ -116,19 +130,15 @@ export default function App() {
   useEffect(() => {
     getLocationPermission();
   });
-  const signedIn = isSignedIn()
+
+  isSignedIn()
     .then((res) => {
       updateAuth(res as boolean);
       updateCheckedSignedIn(true);
     })
     .catch((err) => alert("An error occurred"));
 
-  const [isLoaded] = useFonts({
-    "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
-    "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
-  });
-
-  if (!isLoaded || !checkedSignedIn) {
+  if (!fontsLoaded || !checkedSignedIn) {
     return <AppLoading />;
   }
 

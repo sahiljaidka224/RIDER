@@ -23,7 +23,7 @@
         "googleMapsApiKey": "AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY"
       },
       "infoPlist": {
-          "NSLocationUsageDescription": "Hopinn collects location data to make sure a faultless and express ride."
+        "NSLocationUsageDescription": "Hopinn collects location data to make sure a faultless and express ride."
       }
     },
     "android": {
@@ -37,7 +37,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "sdkVersion": "39.0.0",
     "platforms": [
       "android",
       "ios"
