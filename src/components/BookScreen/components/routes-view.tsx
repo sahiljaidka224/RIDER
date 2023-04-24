@@ -1,5 +1,5 @@
 import { Icons } from "../../../constants/icons";
-import { MutationFunction } from "@apollo/react-hooks";
+// import { MutationFunction } from "@apollo/react-hooks";
 import { NextButton } from "../../Common/NextButton";
 import React from "react";
 import { RideView } from "../../ride-type";
@@ -15,7 +15,7 @@ interface RoutesViewProps {
   options?: Option[];
   duration: string;
   distance: string;
-  requestBooking: MutationFunction;
+  requestBooking: any;
   requestBookingLoading: boolean;
   isBookingActive?: boolean;
 }

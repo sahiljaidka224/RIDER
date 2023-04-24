@@ -1,15 +1,15 @@
-import {
-  BOOKING_UPDATED_SUBSCRIPTION,
-  UPDATE_BOOKING_MUTATION,
-} from "../queriesAndMutations";
-import { useMutation, useSubscription } from "@apollo/react-hooks";
+// import {
+//   BOOKING_UPDATED_SUBSCRIPTION,
+//   UPDATE_BOOKING_MUTATION,
+// } from "../queriesAndMutations";
+// import { useMutation, useSubscription } from "@apollo/react-hooks";
 
 import { Coords } from "..";
-import { DriverDetails } from "./driver-view";
+// import { DriverDetails } from "./driver-view";
 import { Loader } from "../../Common/loader";
 import React from "react";
 import { ScreenState } from "../../../../overmind/state";
-import { getPolyline } from "../../../utils/polyline";
+// import { getPolyline } from "../../../utils/polyline";
 import styled from "styled-components/native";
 import { useOvermind } from "../../../../overmind";
 
@@ -33,48 +33,48 @@ export const BookingView: React.FC<BookingViewProps> = ({
 }) => {
   const { state, actions } = useOvermind();
   const { source, bookingScreenState } = state;
-  const { data: bookingUpdatedData, loading, error } = useSubscription(
-    BOOKING_UPDATED_SUBSCRIPTION,
-    {
-      variables: { bookingId: bookingId },
-      onSubscriptionData: async ({ subscriptionData }) => {
-        if (subscriptionData.data) {
-          const { bookingUpdated } = subscriptionData.data;
-          const { status, location } = bookingUpdated;
+  // const { data: bookingUpdatedData, loading, error } = useSubscription(
+  //   BOOKING_UPDATED_SUBSCRIPTION,
+  //   {
+  //     variables: { bookingId: bookingId },
+  //     onSubscriptionData: async ({ subscriptionData }) => {
+  //       if (subscriptionData.data) {
+  //         const { bookingUpdated } = subscriptionData.data;
+  //         const { status, location } = bookingUpdated;
 
-          if (status === "DRIVER_ASSIGNED") {
-            if (location && source && source.location) {
-              if (location.length < 1) return;
-              const destPoint = {
-                lat: location[1],
-                lng: location[0],
-              };
+  //         if (status === "DRIVER_ASSIGNED") {
+  //           if (location && source && source.location) {
+  //             if (location.length < 1) return;
+  //             const destPoint = {
+  //               lat: location[1],
+  //               lng: location[0],
+  //             };
 
-              const coordinates = await getPolyline(source.location, destPoint);
-              updateRoute(coordinates);
-              actions.updateBookingScreenState(ScreenState.DRIVER_ASSIGNED);
-            }
-          }
-        }
-      },
-    }
-  );
+  //             const coordinates = await getPolyline(source.location, destPoint);
+  //             updateRoute(coordinates);
+  //             actions.updateBookingScreenState(ScreenState.DRIVER_ASSIGNED);
+  //           }
+  //         }
+  //       }
+  //     },
+  //   }
+  // );
 
-  const [
-    updateBooking,
-    { loading: updateBookingLoading, error: updateBookingError },
-  ] = useMutation(UPDATE_BOOKING_MUTATION, {
-    onCompleted: () => {
-      updateRoute(undefined);
-      actions.updateBookingScreenState(ScreenState.INITIAL);
-    },
-  });
+  // const [
+  //   updateBooking,
+  //   { loading: updateBookingLoading, error: updateBookingError },
+  // ] = useMutation(UPDATE_BOOKING_MUTATION, {
+  //   onCompleted: () => {
+  //     updateRoute(undefined);
+  //     actions.updateBookingScreenState(ScreenState.INITIAL);
+  //   },
+  // });
 
   const onCancel = () => {
     if (bookingId) {
-      updateBooking({
-        variables: { bookingId, status: "CANCELLED_BY_USER" },
-      });
+      // updateBooking({
+      //   variables: { bookingId, status: "CANCELLED_BY_USER" },
+      // });
     }
   };
 
@@ -85,11 +85,11 @@ export const BookingView: React.FC<BookingViewProps> = ({
           <Loader
             onButtonPress={onCancel}
             loadingText="Please wait while we get our best drivers for you..."
-            loading={updateBookingLoading}
+            loading={false}
           />
         </BackgroundView>
       )}
-      {bookingUpdatedData &&
+      {/* {bookingUpdatedData &&
         bookingScreenState === ScreenState.DRIVER_ASSIGNED &&
         bookingUpdatedData.bookingUpdated && (
           <DriverDetails
@@ -99,7 +99,7 @@ export const BookingView: React.FC<BookingViewProps> = ({
             onCancel={onCancel}
             loading={updateBookingLoading}
           />
-        )}
+        )} */}
     </>
   );
 };

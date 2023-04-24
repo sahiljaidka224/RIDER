@@ -1,13 +1,13 @@
-import { ActivityIndicator, FlatList } from "react-native";
+// import { ActivityIndicator, FlatList } from "react-native";
 
 import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
-import { GET_MY_BOOKINGS } from "./queriesAndMutations";
+// import { GET_MY_BOOKINGS } from "./queriesAndMutations";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
-import { TripOverView } from "./components/trip-overview";
+// import { TripOverView } from "./components/trip-overview";
 import styled from "styled-components/native";
-import { useQuery } from "@apollo/react-hooks";
+// import { useQuery } from "@apollo/react-hooks";
 
 type YourRidesProps = {
   navigation: NavigationProp<any, any>;
@@ -64,10 +64,10 @@ export const YourRides: React.FC<YourRidesProps> = ({ navigation }) => {
     if (navigation.canGoBack()) navigation.goBack();
   };
 
-  const { loading, error, data, refetch } = useQuery(GET_MY_BOOKINGS, {
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: "no-cache",
-  });
+  // const { loading, error, data, refetch } = useQuery(GET_MY_BOOKINGS, {
+  //   notifyOnNetworkStatusChange: true,
+  //   fetchPolicy: "no-cache",
+  // });
 
   return (
     <BackgroundView>
@@ -75,13 +75,13 @@ export const YourRides: React.FC<YourRidesProps> = ({ navigation }) => {
         <BackButton onClick={onBackButtonClick} />
       </BackButtonWrapper>
       <Heading>Your rides</Heading>
-      {loading && !data && (
+      {/* {loading && !data && (
         <ActivityIndicatorWrapper>
           <ActivityIndicator size="large" />
         </ActivityIndicatorWrapper>
-      )}
-      {!loading && !data && error && <Error>Please try again!</Error>}
-      {!loading &&
+      )} */}
+      {/* {!loading && !data && error && <Error>Please try again!</Error>} */}
+      {/* {!loading &&
         !error &&
         data &&
         data.getMyBookings &&
@@ -100,7 +100,7 @@ export const YourRides: React.FC<YourRidesProps> = ({ navigation }) => {
           scrollEnabled={true}
           renderItem={({ item }) => <TripOverView booking={item} />}
         />
-      )}
+      )} */}
     </BackgroundView>
   );
 };

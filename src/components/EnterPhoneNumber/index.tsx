@@ -18,10 +18,10 @@ import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
-import { SIGNUP_USING_NUM } from "../EntryPoint/queriesAndMutations";
+// import { SIGNUP_USING_NUM } from "../EntryPoint/queriesAndMutations";
 import { iphone6OrGreater } from "../../utils/device-info";
 import styled from "styled-components/native";
-import { useMutation } from "@apollo/react-hooks";
+// import { useMutation } from "@apollo/react-hooks";
 
 interface EnterPhoneNumberProps {
   navigation: NavigationProp<any, any>;
@@ -94,14 +94,14 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
   navigation,
 }) => {
   const [value, onChangeText] = React.useState<string>("");
-  const [signUp, { loading, error, data }] = useMutation(SIGNUP_USING_NUM, {
-    onCompleted: (completedData) => {
-      navigation.navigate("OtpScreen", {
-        number: value,
-        id: completedData.createUser._id, // TODO: fix this
-      });
-    },
-  });
+  // const [signUp, { loading, error, data }] = useMutation(SIGNUP_USING_NUM, {
+  //   onCompleted: (completedData) => {
+  //     navigation.navigate("OtpScreen", {
+  //       number: value,
+  //       id: completedData.createUser._id, // TODO: fix this
+  //     });
+  //   },
+  // });
 
   const onBackButtonClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -164,7 +164,7 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
             />
           </PhoneWrapper>
           <HorizontalLine />
-          {!loading && !data && error && <Error>Please try again!</Error>}
+          {/* {!loading && !data && error && <Error>Please try again!</Error>} */}
         </ContainerNumber>
         <ContainerButton>
           <NextButtonWrapper>
@@ -172,9 +172,9 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
               By continuing you will receive a SMS for verification
             </ByContinuingText>
             <NextButton
-              onClick={!loading ? onNextButtonClick : noop}
+              onClick={onNextButtonClick}
               isValid={value.replace(/ /g, "").length === 9}
-              loading={loading}
+              loading={false}
             />
           </NextButtonWrapper>
         </ContainerButton>

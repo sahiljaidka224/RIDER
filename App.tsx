@@ -3,7 +3,6 @@ import * as Location from "expo-location";
 import React, { useCallback, useEffect } from "react";
 
 import { AddCardView } from "./src/components/payments/components/web-add-card";
-import { ApolloProvider } from "@apollo/react-hooks";
 import { BookingScreen } from "./src/components/BookScreen";
 import { DrawerComp } from "./src/components/drawer";
 import { EditAccount } from "./src/components/edit-account";
@@ -16,7 +15,6 @@ import { OtpScreen } from "./src/components/Otp";
 import { PaymentsView } from "./src/components/payments";
 import { Provider } from "overmind-react";
 import { YourRides } from "./src/components/your-rides";
-import client from "./client";
 import { config } from "./overmind";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createOvermind } from "overmind";
@@ -26,9 +24,12 @@ import { useFonts } from "@use-expo/font";
 import AppLoading from "expo-app-loading";
 import * as SplashScreen from "expo-splash-screen";
 
-const overmind = createOvermind(config, {
-  devtools: "192.168.0.46:3031",
-});
+const overmind = createOvermind(
+  config
+  //   {
+  //   devtools: "192.168.0.46:3031",
+  // }
+);
 
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
@@ -143,48 +144,48 @@ export default function App() {
   }
 
   return (
-    <ApolloProvider client={client}>
-      <Provider value={overmind}>
-        <NavigationContainer>
-          <RootStack.Navigator mode="modal">
-            {auth ? (
-              <RootStack.Screen
-                name="AuthedViews"
-                component={AuthedViews}
-                options={{ headerShown: false }}
-              />
-            ) : (
-              <RootStack.Screen
-                name="Main"
-                component={MainStackScreen}
-                options={{ headerShown: false }}
-              />
-            )}
+    // <ApolloProvider client={client}>
+    <Provider value={overmind}>
+      <NavigationContainer>
+        <RootStack.Navigator mode="modal">
+          {auth ? (
             <RootStack.Screen
-              name="EnterDestination"
-              component={EnterDestinationScreen}
-              options={{
-                headerShown: false,
-                cardStyle: { backgroundColor: "transparent" },
-              }}
+              name="AuthedViews"
+              component={AuthedViews}
+              options={{ headerShown: false }}
             />
+          ) : (
             <RootStack.Screen
-              name="EditFieldScreen"
-              component={EditFieldScreen}
-              options={{
-                headerShown: false,
-              }}
+              name="Main"
+              component={MainStackScreen}
+              options={{ headerShown: false }}
             />
-            <RootStack.Screen
-              name="AddCardView"
-              component={AddCardView}
-              options={{
-                headerShown: false,
-              }}
-            />
-          </RootStack.Navigator>
-        </NavigationContainer>
-      </Provider>
-    </ApolloProvider>
+          )}
+          <RootStack.Screen
+            name="EnterDestination"
+            component={EnterDestinationScreen}
+            options={{
+              headerShown: false,
+              cardStyle: { backgroundColor: "transparent" },
+            }}
+          />
+          <RootStack.Screen
+            name="EditFieldScreen"
+            component={EditFieldScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <RootStack.Screen
+            name="AddCardView"
+            component={AddCardView}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </Provider>
+    // </ApolloProvider>
   );
 }

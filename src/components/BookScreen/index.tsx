@@ -2,12 +2,12 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 
-import {
-  BOOKING_MUTATION,
-  GET_BOOKING_INPROGRESS,
-  GET_NEARBY_DRIVERS,
-  UPDATE_EXPO_PUSHTOKEN,
-} from "./queriesAndMutations";
+// import {
+//   BOOKING_MUTATION,
+//   GET_BOOKING_INPROGRESS,
+//   GET_NEARBY_DRIVERS,
+//   UPDATE_EXPO_PUSHTOKEN,
+// } from "./queriesAndMutations";
 import {
   Dimensions,
   Platform,
@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 import React, { useRef, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
+// import { useLazyQuery, useMutation } from "@apollo/client";
 
 import { BookingView } from "./components/booking-view";
 import { Color } from "../../constants/Theme";
@@ -166,34 +166,34 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   //     }
   //   );
 
-  const [getDrivers, { loading, data, error }] = useLazyQuery(
-    GET_NEARBY_DRIVERS,
-    {
-      pollInterval: 60000,
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: "network-only",
-    }
-  );
+  // const [getDrivers, { loading, data, error }] = useLazyQuery(
+  //   GET_NEARBY_DRIVERS,
+  //   {
+  //     pollInterval: 60000,
+  //     notifyOnNetworkStatusChange: true,
+  //     fetchPolicy: "network-only",
+  //   }
+  // );
 
-  const [
-    getTripPrice,
-    { loading: tripPriceLoading, error: tripPriceErr, data: tripPriceData },
-  ] = useLazyQuery(GET_TRIPPRICE_BASEDON_LOCATION, {
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: "network-only",
-  });
+  // const [
+  //   getTripPrice,
+  //   { loading: tripPriceLoading, error: tripPriceErr, data: tripPriceData },
+  // ] = useLazyQuery(GET_TRIPPRICE_BASEDON_LOCATION, {
+  //   notifyOnNetworkStatusChange: true,
+  //   fetchPolicy: "network-only",
+  // });
 
-  const [
-    requestBooking,
-    { loading: bookingLoading, error: bookingReqError, data: bookingReqData },
-  ] = useMutation(BOOKING_MUTATION, {
-    onCompleted: () => {
-      actions.updateBookingScreenState(ScreenState.SEARCHING);
-      updateBookingInProgress(true);
-    },
-  });
+  // const [
+  //   requestBooking,
+  //   { loading: bookingLoading, error: bookingReqError, data: bookingReqData },
+  // ] = useMutation(BOOKING_MUTATION, {
+  //   onCompleted: () => {
+  //     actions.updateBookingScreenState(ScreenState.SEARCHING);
+  //     updateBookingInProgress(true);
+  //   },
+  // });
 
-  const [updateExpoPushToken] = useMutation(UPDATE_EXPO_PUSHTOKEN);
+  // const [updateExpoPushToken] = useMutation(UPDATE_EXPO_PUSHTOKEN);
 
   const updateRoute = (coordinates: [Coords] | undefined) => {
     updateCoords(coordinates);
@@ -221,12 +221,12 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     const pushToken = await Notifications.getExpoPushTokenAsync();
 
     if (pushToken) {
-      updateExpoPushToken({
-        variables: {
-          pushToken: pushToken.data,
-          userType: "user",
-        },
-      });
+      // updateExpoPushToken({
+      //   variables: {
+      //     pushToken: pushToken.data,
+      //     userType: "user",
+      //   },
+      // });
     }
 
     if (Platform.OS === "android") {
@@ -242,7 +242,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   const getLocationPermissions = async () => {
     const { status: existingStatus } = await Location.getPermissionsAsync();
 
-    if (existingStatus !== 'granted') return;
+    if (existingStatus !== "granted") return;
     // let finalStatus = existingStatus;
 
     // if (existingStatus !== "granted") {
@@ -268,16 +268,16 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
           longitudeDelta: 0.0421,
         });
       }
-      if (!bookingInProg && !bookingReqData) {
-        getDrivers({
-          variables: {
-            cords: [
-              locationData.coords.longitude,
-              locationData.coords.latitude,
-            ],
-          },
-        });
-      }
+      // if (!bookingInProg && !bookingReqData) {
+      //   getDrivers({
+      //     variables: {
+      //       cords: [
+      //         locationData.coords.longitude,
+      //         locationData.coords.latitude,
+      //       ],
+      //     },
+      //   });
+      // }
 
       async function getAddress() {
         const address = await getAddressFromLatLong(
@@ -310,18 +310,16 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     getPushNotificationsPermissions();
 
     // This listener is fired whenever a notification is received while the app is foregrounded
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
         // console.log({ notification });
-      }
-    );
+      });
 
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
         // console.log({ response });
-      }
-    );
+      });
     async function showPolyline() {
       if (!source?.location || !destination?.location) return;
       const coordinates = await getPolyline(
@@ -371,14 +369,14 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     )
       return;
     //TODO: show error;
-    getTripPrice({
-      variables: {
-        sourceLat: source.location.lat,
-        sourceLng: source.location.lng,
-        destinationLat: destination.location.lat,
-        destinationLng: destination.location.lng,
-      },
-    });
+    // getTripPrice({
+    //   variables: {
+    //     sourceLat: source.location.lat,
+    //     sourceLng: source.location.lng,
+    //     destinationLat: destination.location.lat,
+    //     destinationLng: destination.location.lng,
+    //   },
+    // });
   };
 
   const onCancel = () => {
@@ -404,9 +402,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         showsUserLocation={true}
         ref={mapRef}
         zoomEnabled={true}
-        
       >
-        {(bookingScreenState === ScreenState.INITIAL ||
+        {/* {(bookingScreenState === ScreenState.INITIAL ||
           bookingScreenState === ScreenState.ROUTES) &&
           data &&
           data.findNearByDrivers &&
@@ -424,7 +421,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
                 resizeMode="contain"
               />
             </Marker>
-          ))}
+          ))} */}
         {(bookingScreenState === ScreenState.ROUTES ||
           bookingScreenState === ScreenState.DRIVER_ASSIGNED) &&
           coords &&
@@ -504,13 +501,13 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
           <MenuButton
             onClick={onCancel}
             source={Icons.cross}
-            isLoading={tripPriceLoading}
+            isLoading={false}
           />
         ) : (
           <MenuButton
             onClick={() => navigation.openDrawer()}
             source={Icons.drawer}
-            isLoading={tripPriceLoading || bookingLoading}
+            isLoading={false}
           />
         )}
       </MenuButtonWrapper>
@@ -518,7 +515,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         {!coords && ScreenState.INITIAL === bookingScreenState && (
           <InitalView navigation={navigation} />
         )}
-        {bookingScreenState === ScreenState.ROUTES &&
+        {/* {bookingScreenState === ScreenState.ROUTES &&
           coords &&
           tripPriceData &&
           tripPriceData.getTripPriceBasedOnLatLng && (
@@ -544,7 +541,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
               bookingId={bookingReqData.createBooking.id}
               updateRoute={updateRoute}
             />
-          )}
+          )} */}
         {/* {bookingInProgData &&
           bookingInProgData.createBooking &&
           bookingReqData.createBooking.id &&

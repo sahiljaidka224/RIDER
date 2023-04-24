@@ -1,4 +1,4 @@
-import { ADD_CARD_MUTATION } from "../../edit-account/queriesAndMutations";
+// import { ADD_CARD_MUTATION } from "../../edit-account/queriesAndMutations";
 import { ActivityIndicator } from "react-native";
 import { BackButton } from "../../Common/BackButton";
 import { Color } from "../../../constants/Theme";
@@ -7,7 +7,7 @@ import { Icons } from "../../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import styled from "styled-components/native";
-import { useMutation } from "@apollo/react-hooks";
+// import { useMutation } from "@apollo/react-hooks";
 var stripe = require("stripe-client")(
   `pk_test_51HQsOMKqzZyQju7VuuXeblId272rr8RA1cjvlXvudTzV85ndeTmCH2WD1t3pU2f0r24LWjXGIdfrLYOnaqUWLjh700M7Sa0P5t`
 );
@@ -86,13 +86,13 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
     if (navigation.canGoBack()) navigation.goBack();
   };
 
-  const [addCard, { data, error, loading }] = useMutation(ADD_CARD_MUTATION, {
-    onCompleted: (completedData) => {
-      if (completedData) {
-        onBackButtonPress();
-      }
-    },
-  });
+  // const [addCard, { data, error, loading }] = useMutation(ADD_CARD_MUTATION, {
+  //   onCompleted: (completedData) => {
+  //     if (completedData) {
+  //       onBackButtonPress();
+  //     }
+  //   },
+  // });
 
   const onCardChange = (form: Form) => {
     const { valid, status, values } = form;
@@ -129,11 +129,11 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
     var card = await stripe.createToken(information);
     var token = card.id;
 
-    addCard({
-      variables: {
-        stripeCardToken: token,
-      },
-    });
+    // addCard({
+    //   variables: {
+    //     stripeCardToken: token,
+    //   },
+    // });
   };
   return (
     <SafeAreaWrapper behavior="padding">
@@ -154,7 +154,7 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
         </CreditCardWrapper>
         <AddCardButtonWrapper>
           <AddCardButton disabled={!valid} onPress={onAddCard}>
-            {loading ? (
+            {false ? (
               <ActivityIndicator size="small" />
             ) : (
               <AddCardButtonText>Add Card</AddCardButtonText>

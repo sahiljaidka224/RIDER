@@ -1,13 +1,13 @@
 import { Animated, TouchableOpacity } from "react-native";
 
 import { Color } from "../../constants/Theme";
-import { MutationFunction } from "@apollo/react-hooks";
+// import { MutationFunction } from "@apollo/react-hooks";
 import React from "react";
 import { iphone6OrGreater } from "../../utils/device-info";
 import styled from "styled-components/native";
 
 type TimerProps = {
-  resendOtp: MutationFunction;
+  resendOtp: any;
   number: string;
 };
 

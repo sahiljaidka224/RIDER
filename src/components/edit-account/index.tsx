@@ -4,12 +4,12 @@ import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
 import { DetailInfo } from "./components/text-view";
 import { Feather } from "@expo/vector-icons";
-import { GET_USER_DETAILS } from "./queriesAndMutations";
+// import { GET_USER_DETAILS } from "./queriesAndMutations";
 import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import styled from "styled-components/native";
-import { useLazyQuery } from "@apollo/react-hooks";
+// import { useLazyQuery } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
 
 type EditAccountProps = {
@@ -38,7 +38,7 @@ const Heading = styled.Text`
 const UserImage = styled.Image<{ size?: number }>`
   width: ${({ size }) => (size ? `${size}px` : "60px")};
   height: ${({ size }) => (size ? `${size}px` : "60px")};
-  border-radius: ${({ size }) => (size ? `${size / 2}px` : "60px")}; ;
+  border-radius: ${({ size }) => (size ? `${size / 2}px` : "60px")};
 `;
 
 const EditImageWrapper = styled.TouchableOpacity`
@@ -70,21 +70,21 @@ export const EditAccount: React.FC<EditAccountProps> = ({ navigation }) => {
   const { state, actions } = useOvermind();
   const { userDetails } = state;
 
-  const [getDetails, { loading, data, error }] = useLazyQuery(
-    GET_USER_DETAILS,
-    {
-      onCompleted: ({ getUserDetails }) => {
-        const { email, fullName, mobile } = getUserDetails;
-        actions.updateUserDetails({ email, fullName, mobile });
-      },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: "network-only",
-    }
-  );
+  // const [getDetails, { loading, data, error }] = useLazyQuery(
+  //   GET_USER_DETAILS,
+  //   {
+  //     onCompleted: ({ getUserDetails }) => {
+  //       const { email, fullName, mobile } = getUserDetails;
+  //       actions.updateUserDetails({ email, fullName, mobile });
+  //     },
+  //     notifyOnNetworkStatusChange: true,
+  //     fetchPolicy: "network-only",
+  //   }
+  // );
 
   React.useEffect(() => {
     if (!userDetails) {
-      getDetails();
+      // getDetails();
     }
   }, []);
 
@@ -115,7 +115,7 @@ export const EditAccount: React.FC<EditAccountProps> = ({ navigation }) => {
           <Feather name="edit-2" color={Color.Button.Background} size={19} />
         </EditImageWrapper>
       </ImageWrapper>
-      {loading && <ActivityIndicator size="small" />}
+      {/* {loading && <ActivityIndicator size="small" />} */}
       <ScrollView>
         <DetailInfo
           key="1"

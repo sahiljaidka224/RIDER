@@ -6,7 +6,7 @@ import { GET_MY_CARDS } from "../edit-account/queriesAndMutations";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import styled from "styled-components/native";
-import { useQuery } from "@apollo/react-hooks";
+// import { useQuery } from "@apollo/react-hooks";
 
 type PaymentScreenProps = {
   navigation: NavigationProp<any, any>;
@@ -52,16 +52,17 @@ const AddPaymentText = styled.Text<{ textColor?: string }>`
   font-size: 18px;
   line-height: 18px;
   text-align: center;
-  color: ${({ textColor }) => (textColor ? textColor : Color.Text.Normal.Color)};
+  color: ${({ textColor }) =>
+    textColor ? textColor : Color.Text.Normal.Color};
 `;
 
 const AddIconWrapper = styled(Feather)``;
 
 export const PaymentsView: React.FC<PaymentScreenProps> = ({ navigation }) => {
-  const { loading, error, data } = useQuery(GET_MY_CARDS, {
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: "no-cache",
-  });
+  // const { loading, error, data } = useQuery(GET_MY_CARDS, {
+  //   notifyOnNetworkStatusChange: true,
+  //   fetchPolicy: "no-cache",
+  // });
 
   const onBackButtonClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -77,8 +78,8 @@ export const PaymentsView: React.FC<PaymentScreenProps> = ({ navigation }) => {
         <BackButton onClick={onBackButtonClick} />
       </BackButtonWrapper>
       <Heading>Payments</Heading>
-      {loading && <ActivityIndicator size="small" />}
-      {data && data.getMyCards && data.getMyCards.length > 0 && (
+      {/* {loading && <ActivityIndicator size="small" />} */}
+      {/* {data && data.getMyCards && data.getMyCards.length > 0 && (
         <AddPaymentView borderColor="rgba(112, 112, 112, 0.2)">
           <Feather
             name="credit-card"
@@ -87,7 +88,7 @@ export const PaymentsView: React.FC<PaymentScreenProps> = ({ navigation }) => {
           />
           <AddPaymentText>{`•••• ${data.getMyCards[0].lastFour}`}</AddPaymentText>
         </AddPaymentView>
-      )}
+      )} */}
       <AddPaymentView onPress={onAddPaymentViewClick}>
         <AddPaymentText>Add Payment Method</AddPaymentText>
         <AddIconWrapper name="plus" color={Color.Button.Background} size={24} />
