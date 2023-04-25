@@ -73,7 +73,6 @@ const AuthedViews = () => {
       )}
       hideStatusBar
     >
-      <MainStack.Screen name="Main" component={MainStackScreen} />
       <Drawer.Screen name="BookingScreen" component={BookingScreen} />
       <Drawer.Screen
         name="YourRides"
@@ -164,7 +163,14 @@ export default function App() {
       <Provider value={overmind}>
         <NavigationContainer>
           <RootStack.Navigator mode="modal">
-            {auth ? (
+            {auth && (
+              <RootStack.Screen
+                name="AuthedViews"
+                component={AuthedViews}
+                options={{ headerShown: false }}
+              />
+            )}
+            {/* {auth ? (
               <RootStack.Screen
                 name="AuthedViews"
                 component={AuthedViews}
@@ -176,7 +182,14 @@ export default function App() {
                 component={MainStackScreen}
                 options={{ headerShown: false }}
               />
-            )}
+            )} */}
+
+            <RootStack.Screen
+              name="Main"
+              component={MainStackScreen}
+              options={{ headerShown: false }}
+            />
+
             <RootStack.Screen
               name="EnterDestination"
               component={EnterDestinationScreen}

@@ -10,7 +10,7 @@ import { getToken } from "./auth";
 const httpLink = new HttpLink({
   uri: __DEV__
     ? "http://192.168.1.106:4000/graphql"
-    : "https://rider-driver-backend.herokuapp.com/graphql",
+    : "https://hopinn-backend.herokuapp.com/graphql",
   credentials: "include",
 });
 

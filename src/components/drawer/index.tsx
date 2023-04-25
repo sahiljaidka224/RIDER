@@ -94,7 +94,7 @@ export const DrawerComp: React.FC<Props> = (props) => {
   return (
     <Container>
       <ImageWrapper source={Icons.driverDefault} resizeMode="contain" />
-      <GreetingsWrapper>Hello</GreetingsWrapper>
+      <GreetingsWrapper>{`Hello`}</GreetingsWrapper>
       <Name>{userDetails?.fullName ? userDetails?.fullName : ""}</Name>
       <MenuWrapper>
         {optionsList.map((ol) => {
@@ -121,6 +121,7 @@ export const DrawerComp: React.FC<Props> = (props) => {
 };
 
 const styles = StyleSheet.create({
+  // eslint-disable-next-line react-native/no-color-literals
   list: {
     color: "#0E1823",
     fontFamily: "SFPro-Regular",
