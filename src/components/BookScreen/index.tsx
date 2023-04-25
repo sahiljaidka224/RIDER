@@ -1,7 +1,5 @@
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
-import * as Permissions from "expo-permissions";
-
 // import {
 //   BOOKING_MUTATION,
 //   GET_BOOKING_INPROGRESS,
@@ -200,14 +198,13 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   };
 
   const getPushNotificationsPermissions = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    );
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
 
     let finalStatus = existingStatus;
 
     if (existingStatus !== "granted") {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      const { status } = await Notifications.getPermissionsAsync();
       finalStatus = status;
     }
 
@@ -240,22 +237,22 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
   };
 
   const getLocationPermissions = async () => {
-    const { status: existingStatus } = await Location.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Location.requestForegroundPermissionsAsync();
 
-    if (existingStatus !== "granted") return;
-    // let finalStatus = existingStatus;
+    let finalStatus = existingStatus;
 
-    // if (existingStatus !== "granted") {
-    //   const { status } = await Location.requestPermissionsAsync();
-    //   finalStatus = status;
-    // }
+    if (existingStatus !== "granted") {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      finalStatus = status;
+    }
 
-    // if (finalStatus !== "granted") {
-    //   alert(
-    //     "Please allow location permissions from settings in order to take full advantage of the app."
-    //   );
-    //   return;
-    // }
+    if (finalStatus !== "granted") {
+      alert(
+        "Please allow location permissions from settings in order to take full advantage of the app."
+      );
+      return;
+    }
 
     await Location.getCurrentPositionAsync({
       accuracy: LocationAccuracy.Highest,

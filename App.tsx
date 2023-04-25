@@ -111,12 +111,13 @@ export default function App() {
   const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
 
   const getLocationPermission = async () => {
-    const { status: existingStatus } = await Location.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Location.getForegroundPermissionsAsync();
 
     let finalStatus = existingStatus;
 
     if (existingStatus !== "granted") {
-      const { status } = await Location.requestPermissionsAsync();
+      const { status } = await Location.getForegroundPermissionsAsync();
       finalStatus = status;
     }
 
