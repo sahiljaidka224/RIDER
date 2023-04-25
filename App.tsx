@@ -20,9 +20,8 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createOvermind } from "overmind";
 import { createStackNavigator } from "@react-navigation/stack";
 import { isSignedIn } from "./auth";
-import { useFonts } from "@use-expo/font";
-import AppLoading from "expo-app-loading";
 import * as SplashScreen from "expo-splash-screen";
+import * as Font from "expo-font";
 
 const overmind = createOvermind(
   config
@@ -93,22 +92,47 @@ const AuthedViews = () => {
   );
 };
 
+SplashScreen.preventAutoHideAsync();
+
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
-    "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
-  });
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  onLayoutRootView();
-
   const [auth, updateAuth] = React.useState(false);
   const [checkedSignedIn, updateCheckedSignedIn] = React.useState(false);
+  const [appIsReady, setAppIsReady] = React.useState(false);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  // TODO: Find a better way to do this
+  onLayoutRootView();
+
+  useEffect(() => {
+    getLocationPermission();
+
+    async function prepare() {
+      try {
+        await Font.loadAsync({
+          "SFPro-Regular": require("./assets/fonts/SFProDisplayRegular.ttf"),
+          "SF-Pro-Display-SemiBold": require("./assets/fonts/SF-UI-Display-Semibold.ttf"),
+        });
+
+        isSignedIn()
+          .then((res: boolean) => {
+            updateAuth(res);
+            updateCheckedSignedIn(true);
+          })
+          .catch(() => alert("An error occurred"));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
 
   const getLocationPermission = async () => {
     const { status: existingStatus } =
@@ -129,19 +153,8 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    getLocationPermission();
-  });
-
-  isSignedIn()
-    .then((res) => {
-      updateAuth(res as boolean);
-      updateCheckedSignedIn(true);
-    })
-    .catch((err) => alert("An error occurred"));
-
-  if (!fontsLoaded || !checkedSignedIn) {
-    return <AppLoading />;
+  if (!appIsReady || !checkedSignedIn) {
+    return null;
   }
 
   return (
