@@ -88,7 +88,7 @@ const Error = styled.Text`
   margin: 0 auto;
 `;
 
-let noop: () => {};
+// let noop: () => {};
 
 export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
   navigation,

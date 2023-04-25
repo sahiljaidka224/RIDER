@@ -2,7 +2,7 @@
 import { ActivityIndicator } from "react-native";
 import { BackButton } from "../../Common/BackButton";
 import { Color } from "../../../constants/Theme";
-import { CreditCardInput } from "react-native-credit-card-input";
+// import { CreditCardInput } from "react-native-credit-card-input";
 import { Icons } from "../../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
@@ -142,7 +142,7 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
       </BackButtonWrapper>
       <Wrapper>
         <CreditCardWrapper>
-          <CreditCardInput
+          {/* <CreditCardInput
             onChange={onCardChange}
             cardScale={0.75}
             autoFocus
@@ -150,7 +150,7 @@ export const AddCardView: React.FC<AddCardProps> = ({ navigation }) => {
             cardImageFront={require("../../../../assets/PaymentCard.png")}
             cardImageBack={require("../../../../assets/PaymentCard.png")}
             allowScroll
-          />
+          /> */}
         </CreditCardWrapper>
         <AddCardButtonWrapper>
           <AddCardButton disabled={!valid} onPress={onAddCard}>

@@ -1,4 +1,10 @@
-import { ActivityIndicator, Animated, Easing, Image, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 
 import { Color } from "../../../constants/Theme";
 import React from "react";
@@ -24,10 +30,13 @@ const NextButtonImage = styled(Image)`
   height: 14px;
 `;
 
-export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid, loading}) => {
+export const NextButton: React.FC<NextButtonProps> = ({
+  onClick,
+  isValid,
+  loading,
+}) => {
   const [fadeAnim, updateFadeAnim] = React.useState(new Animated.Value(0));
   const [rotateAnim, updateRotateAnim] = React.useState(new Animated.Value(0));
-
 
   Animated.timing(fadeAnim, {
     toValue: 1,
@@ -36,13 +45,12 @@ export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid, loadin
   }).start();
 
   if (isValid) {
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start();
-
+    Animated.timing(rotateAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
   }
 
   return (
@@ -50,24 +58,24 @@ export const NextButton: React.FC<NextButtonProps> = ({ onClick, isValid, loadin
       <Animated.View
         style={{
           opacity: fadeAnim,
-          transform: [
-            {
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [150, 0],
-              }),
-              rotate:
-                isValid &&
-                rotateAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0deg", "360deg"],
-                }),
-            },
-          ],
+          // transform: [
+          //   {
+          //     translateY: fadeAnim.interpolate({
+          //       inputRange: [0, 1],
+          //       outputRange: [150, 0],
+          //     }),
+          //     rotate:
+          //       isValid &&
+          //       rotateAnim.interpolate({
+          //         inputRange: [0, 1],
+          //         outputRange: ["0deg", "360deg"],
+          //       }),
+          //   },
+          // ],
         }}
       >
         {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
+          <ActivityIndicator size="small" color="#fff" />
         ) : (
           <NextButtonImage
             source={require("../../../../assets/ArrowLeft.png")}
