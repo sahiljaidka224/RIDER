@@ -1,16 +1,16 @@
-import { ActivityIndicator, Dimensions, ScrollView } from "react-native";
+import { Dimensions, ScrollView } from "react-native";
 
 import { BackButton } from "../Common/BackButton";
 import { Color } from "../../constants/Theme";
 import { DetailInfo } from "./components/text-view";
 import { Feather } from "@expo/vector-icons";
-// import { GET_USER_DETAILS } from "./queriesAndMutations";
+import { GET_USER_DETAILS } from "./queriesAndMutations";
 import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import styled from "styled-components/native";
-// import { useLazyQuery } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
+import { useLazyQuery } from "@apollo/client";
 
 type EditAccountProps = {
   navigation: NavigationProp<any, any>;
@@ -70,21 +70,21 @@ export const EditAccount: React.FC<EditAccountProps> = ({ navigation }) => {
   const { state, actions } = useOvermind();
   const { userDetails } = state;
 
-  // const [getDetails, { loading, data, error }] = useLazyQuery(
-  //   GET_USER_DETAILS,
-  //   {
-  //     onCompleted: ({ getUserDetails }) => {
-  //       const { email, fullName, mobile } = getUserDetails;
-  //       actions.updateUserDetails({ email, fullName, mobile });
-  //     },
-  //     notifyOnNetworkStatusChange: true,
-  //     fetchPolicy: "network-only",
-  //   }
-  // );
+  const [getDetails, { loading, data, error }] = useLazyQuery(
+    GET_USER_DETAILS,
+    {
+      onCompleted: ({ getUserDetails }) => {
+        const { email, fullName, mobile } = getUserDetails;
+        actions.updateUserDetails({ email, fullName, mobile });
+      },
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",
+    }
+  );
 
   React.useEffect(() => {
     if (!userDetails) {
-      // getDetails();
+      getDetails();
     }
   }, []);
 

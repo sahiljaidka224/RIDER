@@ -1,16 +1,16 @@
 import { EnterMobileNumberText, NextButtonWrapper } from "../EnterPhoneNumber";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import { Platform, SafeAreaView } from "react-native";
-// import { RESEND_OTP, VERIFY_OTP } from "./queriesAndMutations";
+import { RESEND_OTP, VERIFY_OTP } from "./queriesAndMutations";
 
 import { BackButton } from "../Common/BackButton";
 import { NextButton } from "../Common/NextButton";
 import React from "react";
 import { Timer } from "./timer";
-// import { setToken } from "../../../auth";
+import { setToken } from "../../../auth";
 import styled from "styled-components/native";
-// import { useMutation } from "@apollo/react-hooks";
 import { useOvermind } from "../../../overmind";
+import { useMutation } from "@apollo/client";
 
 interface OtpScreenProps {
   navigation: NavigationProp<any, any>;
@@ -83,38 +83,36 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
   const [otp, updateOtp] = React.useState<string[]>([]);
   const [editingIndex, updateEditingIndex] = React.useState<Number>(0);
 
-  // const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
-  //   onCompleted: async ({ verifyOtp }) => {
-  //     if (verifyOtp) {
-  //       const { token, fullName, email, mobile, userId } = verifyOtp;
+  const [verifyOtp, { loading, error, data }] = useMutation(VERIFY_OTP, {
+    onCompleted: async ({ verifyOtp }) => {
+      if (verifyOtp) {
+        const { token, fullName, email, mobile, userId } = verifyOtp;
 
-  //       if (fullName || email || mobile) {
-  //         actions.updateUserDetails({ fullName, email, mobile });
-  //       }
+        if (fullName || email || mobile) {
+          actions.updateUserDetails({ fullName, email, mobile });
+        }
 
-  //       if (token && userId && userId === id) {
-  //         setToken(token);
-  //         navigation.navigate("BookingScreen");
-  //       }
-  //     }
-  //   },
-  // });
+        if (token && userId && userId === id) {
+          setToken(token);
+          navigation.navigate("BookingScreen");
+        }
+      }
+    },
+  });
 
-  // const [resendOtp, { loading: resendOtpLoading }] = useMutation(RESEND_OTP);
+  const [resendOtp, { loading: resendOtpLoading }] = useMutation(RESEND_OTP);
 
   const onBackClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
   };
 
   const onNextButtonClick = () => {
-    navigation.navigate("BookingScreen");
     if (otp.length < 4) return;
-
     const otpToVerify = otp.toString().replaceAll(",", "");
     if (otpToVerify.length === 4) {
-      // verifyOtp({
-      //   variables: { otp: otpToVerify, id: id },
-      // });
+      verifyOtp({
+        variables: { otp: otpToVerify, id: id },
+      });
     }
   };
 
@@ -159,19 +157,14 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ navigation, route }) => {
               </InputWrapper>
             ))}
           </OtpWrapper>
-          {/* {!loading && !data && error && <Error>Please try again!</Error>} */}
+          {!loading && !data && error && <Error>{`Please try again!`}</Error>}
         </ContainerNumber>
         <ContainerButton>
           <NextButtonWrapper>
-            <Timer
-              resendOtp={() => {
-                //
-              }}
-              number={number}
-            />
+            <Timer resendOtp={resendOtp} number={number} />
             <NextButton
-              loading={false}
-              onClick={onNextButtonClick}
+              loading={loading || resendOtpLoading}
+              onClick={!loading ? onNextButtonClick : () => {}}
               isValid={otp.length === 4}
             />
           </NextButtonWrapper>

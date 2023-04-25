@@ -5,10 +5,10 @@ import { BackButton } from "../../Common/BackButton";
 import { Color } from "../../../constants/Theme";
 import { Icons } from "../../../constants/icons";
 import React from "react";
-// import { UPDATE_DETAILS } from "../queriesAndMutations";
+import { UPDATE_DETAILS } from "../queriesAndMutations";
 import styled from "styled-components/native";
-// import { useMutation } from "@apollo/react-hooks";
 import { useOvermind } from "../../../../overmind";
+import { useMutation } from "@apollo/client";
 
 type EditFieldProps = {
   navigation: NavigationProp<any, any>;
@@ -88,23 +88,23 @@ export const EditFieldScreen: React.FC<EditFieldProps> = ({
 
   const { actions } = useOvermind();
 
-  // const [updateDetails, { loading, error }] = useMutation(UPDATE_DETAILS, {
-  //   onCompleted: ({ updateDetails }) => {
-  //     if (updateDetails) {
-  //       const { fullName, email, mobile } = updateDetails;
-  //       actions.updateUserDetails({ fullName, email, mobile });
-  //       onBackButtonPress();
-  //     }
-  //   },
-  // });
+  const [updateDetails, { loading, error }] = useMutation(UPDATE_DETAILS, {
+    onCompleted: ({ updateDetails }) => {
+      if (updateDetails) {
+        const { fullName, email, mobile } = updateDetails;
+        actions.updateUserDetails({ fullName, email, mobile });
+        onBackButtonPress();
+      }
+    },
+  });
 
   const onUpdate = () => {
     if (value && value !== "" && value.trim() !== "") {
       const variables =
         label === "Full Name" ? { fullName: value } : { email: value };
-      // updateDetails({
-      //   variables: variables,
-      // });
+      updateDetails({
+        variables: variables,
+      });
     }
   };
 
@@ -124,11 +124,11 @@ export const EditFieldScreen: React.FC<EditFieldProps> = ({
             autoFocus
             placeholder={label}
           />
-          {/* {error && !loading && <Error>Please try again</Error>} */}
+          {error && !loading && <Error>{`Please try again`}</Error>}
         </TextFieldWrapper>
         <UpdateButtonWrapper>
           <UpdateButton onPress={onUpdate}>
-            {false ? (
+            {loading ? (
               <ActivityIndicator size="small" />
             ) : (
               <UpdateButtonText>

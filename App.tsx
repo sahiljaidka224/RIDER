@@ -22,6 +22,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { isSignedIn } from "./auth";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
+import { ApolloProvider } from "@apollo/client";
+import client from "./client";
 
 const overmind = createOvermind(
   config
@@ -158,48 +160,48 @@ export default function App() {
   }
 
   return (
-    // <ApolloProvider client={client}>
-    <Provider value={overmind}>
-      <NavigationContainer>
-        <RootStack.Navigator mode="modal">
-          {auth ? (
+    <ApolloProvider client={client}>
+      <Provider value={overmind}>
+        <NavigationContainer>
+          <RootStack.Navigator mode="modal">
+            {auth ? (
+              <RootStack.Screen
+                name="AuthedViews"
+                component={AuthedViews}
+                options={{ headerShown: false }}
+              />
+            ) : (
+              <RootStack.Screen
+                name="Main"
+                component={MainStackScreen}
+                options={{ headerShown: false }}
+              />
+            )}
             <RootStack.Screen
-              name="AuthedViews"
-              component={AuthedViews}
-              options={{ headerShown: false }}
+              name="EnterDestination"
+              component={EnterDestinationScreen}
+              options={{
+                headerShown: false,
+                cardStyle: { backgroundColor: "transparent" },
+              }}
             />
-          ) : (
             <RootStack.Screen
-              name="Main"
-              component={MainStackScreen}
-              options={{ headerShown: false }}
+              name="EditFieldScreen"
+              component={EditFieldScreen}
+              options={{
+                headerShown: false,
+              }}
             />
-          )}
-          <RootStack.Screen
-            name="EnterDestination"
-            component={EnterDestinationScreen}
-            options={{
-              headerShown: false,
-              cardStyle: { backgroundColor: "transparent" },
-            }}
-          />
-          <RootStack.Screen
-            name="EditFieldScreen"
-            component={EditFieldScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <RootStack.Screen
-            name="AddCardView"
-            component={AddCardView}
-            options={{
-              headerShown: false,
-            }}
-          />
-        </RootStack.Navigator>
-      </NavigationContainer>
-    </Provider>
-    // </ApolloProvider>
+            <RootStack.Screen
+              name="AddCardView"
+              component={AddCardView}
+              options={{
+                headerShown: false,
+              }}
+            />
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </Provider>
+    </ApolloProvider>
   );
 }

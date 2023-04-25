@@ -9,6 +9,7 @@
     "generate": "graphql-codegen"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.12",
     "@mapbox/polyline": "^1.1.1",
     "@react-native-masked-view/masked-view": "0.2.8",
     "@react-navigation/drawer": "^5.9.0",
@@ -29,7 +30,7 @@
     "expo-secure-store": "~12.1.1",
     "expo-splash-screen": "~0.18.1",
     "expo-status-bar": "~1.4.4",
-    "graphql": "^15.3.0",
+    "graphql": "^16.6.0",
     "graphql-codegen": "^0.4.0",
     "graphql-tag": "^2.11.0",
     "lodash": "^4.17.20",

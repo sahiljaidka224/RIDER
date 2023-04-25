@@ -1,17 +1,48 @@
-// import ApolloClient from "apollo-client";
-// import { InMemoryCache } from "apollo-cache-inmemory";
-// import { WebSocketLink } from "apollo-link-ws";
-// import { createUploadLink } from "apollo-upload-client";
-// import { getMainDefinition } from "apollo-utilities";
-// import { getToken } from "./auth";
-// import { setContext } from "@apollo/client/link/context";
-// import { split } from "apollo-link";
+import {
+  ApolloClient,
+  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+} from "@apollo/client";
+import { Observable } from "@apollo/client/utilities";
+import { getToken } from "./auth";
 
-// const httpLink = createUploadLink({
-//   uri: __DEV__
-//     ? "http://192.168.0.46:4000/graphql"
-//     : "https://rider-driver-backend.herokuapp.com/graphql",
-// });
+const httpLink = new HttpLink({
+  uri: __DEV__
+    ? "http://192.168.1.106:4000/graphql"
+    : "https://rider-driver-backend.herokuapp.com/graphql",
+  credentials: "include",
+});
+
+const request = async (operation) => {
+  const token = await getToken();
+  operation.setContext({
+    headers: {
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+};
+
+const requestLink = new ApolloLink(
+  (operation, forward) =>
+    new Observable((observer) => {
+      let handle;
+      Promise.resolve(operation)
+        .then((oper) => request(oper))
+        .then(() => {
+          handle = forward(operation).subscribe({
+            next: observer.next.bind(observer),
+            error: observer.error.bind(observer),
+            complete: observer.complete.bind(observer),
+          });
+        })
+        .catch(observer.error.bind(observer));
+
+      return () => {
+        if (handle) handle.unsubscribe();
+      };
+    })
+);
 
 // const authLink = setContext(async (_, { headers }) => {
 //   // get the authentication token from local storage if it exists
@@ -41,21 +72,18 @@
 //   },
 // });
 
-// const link = split(
-//   ({ query }) => {
-//     const definition = getMainDefinition(query);
-//     return (
-//       definition.kind === "OperationDefinition" &&
-//       definition.operation === "subscription"
-//     );
-//   },
-//   wsLink,
-//   authorizedLink as any
-// );
+// const link = split(({ query }) => {
+//   const definition = getMainDefinition(query);
+//   return (
+//     definition.kind === "OperationDefinition" &&
+//     definition.operation === "subscription"
+//   );
+// }, authorizedLink as any);
 
-// const cache = new InMemoryCache();
-// const client = new ApolloClient({
-//   link,
-//   cache,
-// });
-// export default client;
+const cache = new InMemoryCache();
+const client = new ApolloClient({
+  link: ApolloLink.from([requestLink, httpLink]),
+  cache,
+});
+
+export default client;

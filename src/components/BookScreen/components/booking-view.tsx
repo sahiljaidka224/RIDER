@@ -1,8 +1,7 @@
-// import {
-//   BOOKING_UPDATED_SUBSCRIPTION,
-//   UPDATE_BOOKING_MUTATION,
-// } from "../queriesAndMutations";
-// import { useMutation, useSubscription } from "@apollo/react-hooks";
+import {
+  // BOOKING_UPDATED_SUBSCRIPTION,
+  UPDATE_BOOKING_MUTATION,
+} from "../queriesAndMutations";
 
 import { Coords } from "..";
 // import { DriverDetails } from "./driver-view";
@@ -12,6 +11,7 @@ import { ScreenState } from "../../../../overmind/state";
 // import { getPolyline } from "../../../utils/polyline";
 import styled from "styled-components/native";
 import { useOvermind } from "../../../../overmind";
+import { useMutation } from "@apollo/client";
 
 type BookingViewProps = {
   bookingId: string;
@@ -60,21 +60,21 @@ export const BookingView: React.FC<BookingViewProps> = ({
   //   }
   // );
 
-  // const [
-  //   updateBooking,
-  //   { loading: updateBookingLoading, error: updateBookingError },
-  // ] = useMutation(UPDATE_BOOKING_MUTATION, {
-  //   onCompleted: () => {
-  //     updateRoute(undefined);
-  //     actions.updateBookingScreenState(ScreenState.INITIAL);
-  //   },
-  // });
+  const [updateBooking, { loading: updateBookingLoading }] = useMutation(
+    UPDATE_BOOKING_MUTATION,
+    {
+      onCompleted: () => {
+        updateRoute(undefined);
+        actions.updateBookingScreenState(ScreenState.INITIAL);
+      },
+    }
+  );
 
   const onCancel = () => {
     if (bookingId) {
-      // updateBooking({
-      //   variables: { bookingId, status: "CANCELLED_BY_USER" },
-      // });
+      updateBooking({
+        variables: { bookingId, status: "CANCELLED_BY_USER" },
+      });
     }
   };
 
@@ -85,7 +85,7 @@ export const BookingView: React.FC<BookingViewProps> = ({
           <Loader
             onButtonPress={onCancel}
             loadingText="Please wait while we get our best drivers for you..."
-            loading={false}
+            loading={updateBookingLoading}
           />
         </BackgroundView>
       )}

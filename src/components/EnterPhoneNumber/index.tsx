@@ -1,3 +1,4 @@
+import React from "react";
 import {
   CountryCode,
   FlagIcon,
@@ -11,17 +12,17 @@ import {
   SafeAreaView,
   TextInput,
   TextInputChangeEventData,
+  Text,
 } from "react-native";
 
 import { BackButton } from "../Common/BackButton/index";
 import { Icons } from "../../constants/icons";
 import { NavigationProp } from "@react-navigation/native";
 import { NextButton } from "../Common/NextButton";
-import React from "react";
-// import { SIGNUP_USING_NUM } from "../EntryPoint/queriesAndMutations";
 import { iphone6OrGreater } from "../../utils/device-info";
 import styled from "styled-components/native";
-// import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
+import { SIGNUP_USING_NUM } from "../EntryPoint/queriesAndMutations";
 
 interface EnterPhoneNumberProps {
   navigation: NavigationProp<any, any>;
@@ -33,7 +34,7 @@ const SafeAreaWrapper = styled(SafeAreaView)`
   display: flex;
 `;
 
-export const EnterMobileNumberText = styled.Text`
+export const EnterMobileNumberText = styled(Text)`
   font-size: 21px;
   color: #0e1823;
   font-family: "SFPro-Regular";
@@ -94,14 +95,14 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
   navigation,
 }) => {
   const [value, onChangeText] = React.useState<string>("");
-  // const [signUp, { loading, error, data }] = useMutation(SIGNUP_USING_NUM, {
-  //   onCompleted: (completedData) => {
-  //     navigation.navigate("OtpScreen", {
-  //       number: value,
-  //       id: completedData.createUser._id, // TODO: fix this
-  //     });
-  //   },
-  // });
+  const [signUp, { loading, error, data }] = useMutation(SIGNUP_USING_NUM, {
+    onCompleted: (completedData) => {
+      navigation.navigate("OtpScreen", {
+        number: value,
+        id: completedData.createUser._id,
+      });
+    },
+  });
 
   const onBackButtonClick = () => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -134,7 +135,7 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
       id: "completedData.createUser._id", // TODO: fix this
     });
 
-    // await signUp({ variables: { mobNumber: value.replace(/ /g, "") } });
+    await signUp({ variables: { mobNumber: value.replace(/ /g, "") } });
   };
 
   return (
@@ -143,7 +144,7 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
       <Container>
         <ContainerNumber>
           <EnterMobileNumberText>
-            Enter your mobile number
+            {`Enter your mobile number`}
           </EnterMobileNumberText>
           <PhoneWrapper>
             <FlagWrapper>
@@ -164,12 +165,12 @@ export const EnterPhoneNumber: React.FC<EnterPhoneNumberProps> = ({
             />
           </PhoneWrapper>
           <HorizontalLine />
-          {/* {!loading && !data && error && <Error>Please try again!</Error>} */}
+          {!loading && !data && error && <Error>Please try again!</Error>}
         </ContainerNumber>
         <ContainerButton>
           <NextButtonWrapper>
             <ByContinuingText>
-              By continuing you will receive a SMS for verification
+              {`By continuing you will receive a SMS for verification`}
             </ByContinuingText>
             <NextButton
               onClick={onNextButtonClick}
