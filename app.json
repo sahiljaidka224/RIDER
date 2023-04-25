@@ -24,13 +24,14 @@
       },
       "infoPlist": {
         "NSLocationUsageDescription": "Hopinn collects location data to make sure a faultless and express ride."
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "package": "com.company.hopinnRider",
       "config": {
         "googleMaps": {
-          "apiKey": "<android maps key>"
+          "apiKey": "AIzaSyDDGCRsdawsguNpqCvTI-zlgCBDz2H8zVY"
         }
       }
     },

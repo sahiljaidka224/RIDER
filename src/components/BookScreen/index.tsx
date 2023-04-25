@@ -193,9 +193,9 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
     }
 
     if (finalStatus !== "granted") {
-      alert(
-        "Please allow notification permissions from settings in order to take full advantage of the app."
-      );
+      // alert(
+      //   "Please allow notification permissions from settings in order to take full advantage of the app."
+      // );
       return;
     }
 
@@ -382,6 +382,12 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation }) => {
         showsUserLocation={true}
         ref={mapRef}
         zoomEnabled={true}
+        initialRegion={{
+          latitude: 0,
+          longitude: 0,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
       >
         {(bookingScreenState === ScreenState.INITIAL ||
           bookingScreenState === ScreenState.ROUTES) &&
